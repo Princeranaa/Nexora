@@ -64,7 +64,7 @@ export default function Register() {
               Accelerate your team's intelligence.
             </h1>
 
-            <p class="text-zinc-400 text-sm leading-relaxed mb-10">
+            <p className="text-zinc-400 text-sm leading-relaxed mb-10">
               Connect your enterprise data to our specialized AI models and
               unlock unparalleled strategic insights in seconds.
             </p>

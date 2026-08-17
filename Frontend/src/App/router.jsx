@@ -34,7 +34,6 @@
 
 // export default routes;
 
-
 import { createBrowserRouter } from "react-router-dom";
 
 import AuthLayout from "./layouts/AuthLayout";
@@ -43,29 +42,43 @@ import DashboardLayout from "./layouts/DashboardLayout";
 import Login from "../features/auth/pages/Login.jsx";
 import Register from "../features/auth/pages/Register.jsx";
 import Home from "../features/dashboard/pages/Home.jsx";
+import PublicRoute from "../App/protectedRoute/PublicRoute.jsx";
+import ProtectedRoute from "./protectedRoute/ProtectedRoute.jsx";
 
 const routes = createBrowserRouter([
   {
     path: "/",
-    element: <AuthLayout />,
+    element: <PublicRoute />,
     children: [
       {
-        path:"login" ,
-        element: <Login />,
-      },
-      {
-        path: "register",
-        element: <Register />,
+        path: "",
+        element: <AuthLayout />,
+        children: [
+          {
+            path: "",
+            element: <Login />,
+          },
+          {
+            path: "register",
+            element: <Register />,
+          },
+        ],
       },
     ],
   },
   {
-    path: "/",
-    element: <DashboardLayout />,
+    path: "/home",
+    element: <ProtectedRoute />,
     children: [
       {
-        index: true,
-        element: <Home />,
+        path: "",
+        element: <DashboardLayout />,
+        children: [
+          {
+            index: true,
+            element: <Home />,
+          },
+        ],
       },
     ],
   },

@@ -25,7 +25,7 @@ export default function Login() {
     };
 
     await handleLogin(Payload);
-    navigate('/')
+    navigate('/home')
   };
 
   return (

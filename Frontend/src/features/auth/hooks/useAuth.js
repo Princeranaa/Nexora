@@ -1,4 +1,4 @@
-import { Login, Register } from "../service/authApi.service";
+import { getMe, Login, Register } from "../service/authApi.service";
 import { useDispatch } from "react-redux";
 import { setEmployee, setError, setLoading } from "../auth.slice";
 
@@ -50,8 +50,22 @@ export function useAuth() {
     }
   }
 
+  async function handleGetMe() {
+    try {
+      dispatch(setError(null));
+      dispatch(setLoading(true));
+      const response = await getMe();
+      dispatch(setEmployee(response?.user));
+    } catch (error) {
+      dispatch(setError(error?.response?.data?.message));
+    } finally {
+      dispatch(setLoading(false));
+    }
+  }
+
   return {
     handleLogin,
     handleRegister,
+    handleGetMe
   };
 }

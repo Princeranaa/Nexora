@@ -1,11 +1,27 @@
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
 import { Outlet } from "react-router";
 
 const DashboardLayout = () => {
+  
+  const {mode} = useSelector(state=>state.theme)
+
+  useEffect(()=>{
+    if(mode === "dark"){
+      document.body.classList.add("light")
+    }else{
+      document.body.classList.remove("light")
+    }
+  },[mode])
+
+
+
+
   return (
     <>
       <Outlet />
 
-      <footer className="border-t border-zinc-800/60 bg-[#07060A] py-4 px-6 lg:px-12">
+      {/* <footer className="border-t border-zinc-800/60 bg-[#07060A] py-4 px-6 lg:px-12">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-zinc-500">
           <div className="flex items-center gap-2">
             <span className="text-white font-semibold">Synthetix AI</span>
@@ -28,7 +44,7 @@ const DashboardLayout = () => {
 
           <div>© 2024 Synthetix AI. Enterprise Intelligence Platforms.</div>
         </div>
-      </footer>
+      </footer> */}
     </>
   );
 };
