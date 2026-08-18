@@ -1,25 +1,31 @@
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Outlet } from "react-router";
+import AsideNav from "../../features/dashboard/components/AsideNav";
+import TopNav from "../../features/dashboard/components/TopNav";
 
 const DashboardLayout = () => {
-  
-  const {mode} = useSelector(state=>state.theme)
+  const { mode } = useSelector((state) => state.theme);
 
-  useEffect(()=>{
-    if(mode === "dark"){
-      document.body.classList.add("light")
-    }else{
-      document.body.classList.remove("light")
-    }
-  },[mode])
-
-
-
+useEffect(() => {
+  if (mode === "light") {
+    document.body.classList.add("light");
+  } else {
+    document.body.classList.remove("light");
+  }
+}, [mode]);
 
   return (
     <>
-      <Outlet />
+    <div className="h-screen grid grid-cols-[1fr_7fr]">
+      <div className="border-r border-gray-300 dark:border-gray-500"><AsideNav/></div>
+        <div className="flex flex-col p-4">
+          <div><TopNav/></div>
+          <div>
+            <Outlet />
+          </div>
+        </div>
+      </div>
 
       {/* <footer className="border-t border-zinc-800/60 bg-[#07060A] py-4 px-6 lg:px-12">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-zinc-500">
