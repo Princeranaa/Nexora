@@ -1,41 +1,14 @@
-import {
-  LayoutDashboard,
-  ListTodo,
-  Users,
-  MessageSquare,
-  Settings,
-} from "lucide-react";
 import { NavLink } from "react-router-dom";
-
-const navItems = [
-  {
-    label: "Dashboard",
-    path: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    label: "Task",
-    path: "/tasks",
-    icon: ListTodo,
-  },
-  {
-    label: "Team",
-    path: "/team",
-    icon: Users,
-  },
-  {
-    label: "Chat",
-    path: "/chat",
-    icon: MessageSquare,
-  },
-  {
-    label: "Settings",
-    path: "/settings",
-    icon: Settings,
-  },
-];
+import NavigationTab from "./NavigationTab";
+import { useSelector } from "react-redux";
+import { adminNavigation } from "../../../App/constance/navigation";
 
 const AsideNav = () => {
+
+  let { employee } = useSelector((state) => state.auth)
+
+  let navigation = employee.role === "admin" ? adminNavigation : employeeNavigation 
+
   return (
     <aside className="flex h-screen w-64 flex-col border-r border-[var(--border)]">
       {/* Logo */}
@@ -49,33 +22,24 @@ const AsideNav = () => {
         </p>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex flex-1 flex-col gap-1 p-3">
-        {navItems.map(({ label, path, icon: Icon }) => (
-          <NavLink
-            key={path}
-            to={path}
-            className={({ isActive }) =>
-              `flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all
-              ${
-                isActive
-                  ? "bg-[var(--primary)] text-white"
-                  : "text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
-              }`
-            }
-          >
-            <Icon size={19} strokeWidth={2} />
-            <span>{label}</span>
-          </NavLink>
-        ))}
-      </nav>
+    {
+      navigation.map((route)=>(
+        <NavigationTab
+         
+        path={route.path}
+        title={route.title}
+        Icon={route.icon}
+      />
+      ))
+    }
 
-      {/* Bottom */}
-      <div className="border-t border-[var(--border)] p-3">
+      {/*  */}
+
+      {/* <div className="border-t border-[var(--border)] p-3">
         <p className="px-3 text-xs text-[var(--text-secondary)]">
           © 2026 Team Sync
         </p>
-      </div>
+      </div> */}
     </aside>
   );
 };
