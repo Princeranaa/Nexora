@@ -15,3 +15,16 @@ export async function getAllEmployee(page = 1, limit = 10, search = "") {
     console.log("error", error);
   }
 }
+
+export async function addEmployee(employeeData) {
+  try {
+    const response = await api.post("/register", {
+      ...employeeData,
+      role: "employee",
+    });
+    return response.data;
+  } catch (error) {
+    console.log("error", error);
+    throw error;
+  }
+}

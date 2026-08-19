@@ -3,6 +3,7 @@ import Department from "../../features/adminModule/departments/pages/Department"
 import Task from "../../features/adminModule/tasks/pages/Task";
 import Dashboard from "../../features/dashboard/pages/Home.jsx";
 import Chats from "../../features/chats/pages/Chats.jsx";
+import AddEmployee from "../../features/adminModule/employees/pages/AddEmployee.jsx";
 
 export let adminRoutes = [
   {
@@ -24,5 +25,9 @@ export let adminRoutes = [
   {
     path: "/home/chats",
     element: <Chats />,
+  },
+  {
+    path: "/home/employee/add",
+    element: <AddEmployee />,
   },
 ];

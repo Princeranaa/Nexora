@@ -1,5 +1,5 @@
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { getAllEmployee } from "../service/employeeApi.service";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
+import { getAllEmployee, addEmployee } from "../service/employeeApi.service";
 import { useEffect, useState } from "react";
 
 export const useEmployee = (page, search) => {
@@ -16,6 +16,17 @@ export const useEmployee = (page, search) => {
     isFetching,
     error,
   };
+};
+
+export const useAddEmployee = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: addEmployee,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+    },
+  });
 };
 
 
