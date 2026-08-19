@@ -1,15 +1,20 @@
-import { Bell, Menu, Search } from "lucide-react";
+import { Bell, Menu, Moon, Search, Sun } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { toggleTheme } from "../../../Shared/State/ThemSlice.jsx";
 
 const TopNav = () => {
+  const { mode } = useSelector((state) => state.theme);
+
+  const dispatch = useDispatch();
+  const handleClick = () => {
+    dispatch(toggleTheme());
+  };
+
   return (
     <header className="flex h-16 w-full items-center justify-between border-b border-[var(--border)]  px-4 md:px-6">
-      
       {/* Search */}
       <div className="flex w-full max-w-md items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--bg-card)] px-3 py-2 transition focus-within:border-[var(--primary)]">
-        <Search
-          size={18}
-          className="shrink-0 text-[var(--text-muted)]"
-        />
+        <Search size={18} className="shrink-0 text-[var(--text-muted)]" />
 
         <input
           type="text"
@@ -20,8 +25,15 @@ const TopNav = () => {
 
       {/* Actions */}
       <div className="ml-4 flex items-center gap-2">
-        
-        {/* Notification */}
+        <button
+          type="button"
+          onClick={handleClick}
+          className="relative rounded-lg p-2 transition hover:bg-[var(--bg-hover)]"
+          aria-label="Change Theme"
+        >
+          {mode === "light" ? <Moon size={20} /> : <Sun size={20} />}
+        </button>
+
         <button
           type="button"
           className="relative rounded-lg p-2 transition hover:bg-[var(--bg-hover)]"

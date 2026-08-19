@@ -1,19 +1,19 @@
 import { NavLink } from "react-router-dom";
 import NavigationTab from "./NavigationTab";
 import { useSelector } from "react-redux";
-import { adminNavigation } from "../../../App/constance/navigation";
+import { adminNavigation, employeeNavigation } from "../../../App/constance/navigation";
 
 const AsideNav = () => {
 
   let { employee } = useSelector((state) => state.auth)
 
-  let navigation = employee.role === "admin" ? adminNavigation : employeeNavigation 
+  let navigation = employee.role === "admin" ? adminNavigation : employeeNavigation
 
   return (
     <aside className="flex h-screen w-64 flex-col border-r border-[var(--border)]">
       {/* Logo */}
       <div className="flex flex-col gap-1 border-b border-[var(--border)] p-5">
-        <h1 className="text-3xl font-semibold text-[var(--primary)]">
+        <h1 className="text-3xl font-semibold text-[#6063EE]">
           Team Sync
         </h1>
 
