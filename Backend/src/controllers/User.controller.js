@@ -104,3 +104,82 @@ export const getMe = async (req, res) => {
     console.log("error", error);
   }
 };
+
+export const getAllEmployees = async (req, res) => {
+  try {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const search = req.query.search?.trim() || "";
+
+    const skip = (page - 1) * limit;
+
+    const filter = {
+      role: "employee",
+    };
+
+    if (search) {
+      const searchTerms = search.split(/\s+/).filter(Boolean);
+
+      filter.$or = [
+        {
+          "fullname.firstname": {
+            $regex: search,
+            $options: "i",
+          },
+        },
+        {
+          "fullname.lastname": {
+            $regex: search,
+            $options: "i",
+          },
+        },
+        {
+          email: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+        {
+          $expr: {
+            $regexMatch: {
+              input: {
+                $concat: ["$fullname.firstname", " ", "$fullname.lastname"],
+              },
+              regex: search,
+              options: "i",
+            },
+          },
+        },
+      ];
+    }
+
+    const [employees, totalEmployees] = await Promise.all([
+      userModel
+        .find(filter)
+        .select("-password")
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 }),
+
+      userModel.countDocuments(filter),
+    ]);
+
+    const totalPages = Math.ceil(totalEmployees / limit);
+
+    res.status(200).json({
+      employees,
+      pagination: {
+        currentPage: page,
+        limit,
+        totalEmployees,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to fetch employees",
+    });
+  }
+};
