@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Calendar, CheckCircle2, ChevronDown, X } from "lucide-react";
+import SegmentButton from "../../Components/SegmentButton";
 
 const TaskModal = ({ onClose }) => {
   const [formData, setFormData] = useState({
@@ -37,10 +38,11 @@ const TaskModal = ({ onClose }) => {
       }
     */
   };
+  const STATUS_OPTIONS = ["Todo", "In Progress"];
+  const PRIORITY_OPTIONS = ["Low", "Medium", "High"];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-
       {/* Overlay */}
       <div
         onClick={onClose}
@@ -65,14 +67,9 @@ const TaskModal = ({ onClose }) => {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[#3b3449] px-6 py-5">
           <div className="flex items-center gap-2">
-            <CheckCircle2
-              size={20}
-              className="text-[#d0bcff]"
-            />
+            <CheckCircle2 size={20} className="text-[#d0bcff]" />
 
-            <h2 className="text-lg font-semibold text-gray-100">
-              Create Task
-            </h2>
+            <h2 className="text-lg font-semibold text-gray-100">Create Task</h2>
           </div>
 
           <button
@@ -96,7 +93,6 @@ const TaskModal = ({ onClose }) => {
         >
           {/* Form Body */}
           <div className="space-y-5 overflow-y-auto p-6 custom-scrollbar">
-
             {/* Task Title */}
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-gray-400">
@@ -160,7 +156,6 @@ const TaskModal = ({ onClose }) => {
 
             {/* Assignee + Due Date */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-
               {/* Assignee */}
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-gray-400">
@@ -193,13 +188,9 @@ const TaskModal = ({ onClose }) => {
                       Select User
                     </option>
 
-                    <option value="employee-id-1">
-                      Alice Smith
-                    </option>
+                    <option value="employee-id-1">Alice Smith</option>
 
-                    <option value="employee-id-2">
-                      Bob Jones
-                    </option>
+                    <option value="employee-id-2">Bob Jones</option>
                   </select>
 
                   <ChevronDown
@@ -262,7 +253,6 @@ const TaskModal = ({ onClose }) => {
 
             {/* Status + Priority */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-
               {/* Status */}
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-gray-400">
@@ -270,57 +260,19 @@ const TaskModal = ({ onClose }) => {
                 </label>
 
                 <div className="flex rounded-lg border border-[#3b3449] bg-[#18151f] p-1">
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        status: "Todo",
-                      }))
-                    }
-                    className={`
-                      flex-1
-                      rounded-md
-                      py-1.5
-                      text-sm
-                      font-medium
-                      transition-colors
-                      ${
-                        formData.status === "Todo"
-                          ? "bg-[#d0bcff] text-[#211d2a] font-semibold"
-                          : "text-gray-400 hover:text-gray-200"
+                  {STATUS_OPTIONS.map((status) => (
+                    <SegmentButton
+                      key={status}
+                      value={status}
+                      selected={formData.status === status}
+                      onClick={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          status,
+                        }))
                       }
-                    `}
-                  >
-                    Todo
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        status: "In Progress",
-                      }))
-                    }
-                    className={`
-                      flex-1
-                      rounded-md
-                      py-1.5
-                      text-sm
-                      font-medium
-                      transition-colors
-                      ${
-                        formData.status === "In Progress"
-                          ? "bg-[#d0bcff] text-[#211d2a] font-semibold"
-                          : "text-gray-400 hover:text-gray-200"
-                      }
-                    `}
-                  >
-                    In Progress
-                  </button>
-
+                    />
+                  ))}
                 </div>
               </div>
 
@@ -331,46 +283,26 @@ const TaskModal = ({ onClose }) => {
                 </label>
 
                 <div className="flex rounded-lg border border-[#3b3449] bg-[#18151f] p-1">
-
-                  {["Low", "Medium", "High"].map((priority) => (
-                    <button
+                  {PRIORITY_OPTIONS.map((priority) => (
+                    <SegmentButton
                       key={priority}
-                      type="button"
+                      value={priority}
+                      selected={formData.priority === priority}
                       onClick={() =>
                         setFormData((prev) => ({
                           ...prev,
                           priority,
                         }))
                       }
-                      className={`
-                        flex-1
-                        rounded-md
-                        py-1.5
-                        text-xs
-                        font-medium
-                        transition-colors
-                        ${
-                          formData.priority === priority
-                            ? priority === "High"
-                              ? "border border-[#7f1d1d]/40 bg-[#4a1c24] text-[#f87171]"
-                              : "bg-[#d0bcff] text-[#211d2a] font-semibold"
-                            : "text-gray-400 hover:text-gray-200"
-                        }
-                      `}
-                    >
-                      {priority}
-                    </button>
+                    />
                   ))}
-
                 </div>
               </div>
-
             </div>
           </div>
 
           {/* Footer */}
           <div className="flex items-center justify-end gap-4 border-t border-[#3b3449] bg-[#211d2a] px-6 py-4">
-
             <button
               type="button"
               onClick={onClose}
@@ -401,7 +333,6 @@ const TaskModal = ({ onClose }) => {
             >
               Create Task
             </button>
-
           </div>
         </form>
       </div>
