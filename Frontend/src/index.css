@@ -71,6 +71,18 @@
      GLOBAL STYLES
   ========================= */
   
+.custom-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+
+
+
   body {
     background: var(--bg-main);
     color: var(--text-primary);

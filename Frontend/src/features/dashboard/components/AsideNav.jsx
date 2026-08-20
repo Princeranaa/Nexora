@@ -10,7 +10,7 @@ const AsideNav = () => {
   let navigation = employee.role === "admin" ? adminNavigation : employeeNavigation
 
   return (
-    <aside className="flex h-screen w-64 flex-col border-r border-[var(--border)]">
+    <aside className="flex h-screen w-64 flex-col   border-[var(--border)]">
       {/* Logo */}
       <div className="flex flex-col gap-1 border-b border-[var(--border)] p-5">
         <h1 className="text-3xl font-semibold text-[#6063EE]">
