@@ -11,9 +11,9 @@ const TopNav = () => {
   };
 
   return (
-    <header className="flex h-16 w-full items-center justify-between px-4 md:px-6">
+    <header className="flex h-16 w-full items-center justify-end px-4 md:px-6">
       {/* Search */}
-      <div className="flex w-full max-w-md items-center gap-2 rounded-lg   bg-[var(--bg-card)] px-3 py-2 transition focus-within:border-[var(--primary)]">
+      {/* <div className="flex w-full max-w-md items-center gap-2 rounded-lg   bg-[var(--bg-card)] px-3 py-2 transition focus-within:border-[var(--primary)]">
         <Search size={18} className="shrink-0 text-[var(--text-muted)]" />
 
         <input
@@ -21,7 +21,7 @@ const TopNav = () => {
           placeholder="Search workspace..."
           className="w-full  bg-transparent text-sm outline-none placeholder:text-[var(--text-muted)]"
         />
-      </div>
+      </div> */}
 
       {/* Actions */}
       <div className="ml-4 flex items-center gap-2">

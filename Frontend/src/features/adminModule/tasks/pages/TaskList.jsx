@@ -21,8 +21,7 @@ const getPriorityClass = (priority) => {
   const priorityClasses = {
     High: "bg-[color-mix(in_srgb,var(--danger)_12%,transparent)] text-[var(--danger)]",
 
-    Medium:
-      "bg-[color-mix(in_srgb,var(--warning)_14%,transparent)] text-[var(--warning)]",
+    Medium: "bg-[color-mix(in_srgb,var(--warning)_14%,transparent)] text-[var(--warning)]",
 
     Low: "bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-[var(--primary)]",
   };
@@ -41,22 +40,13 @@ const TaskList = ({
   totalTasks,
   onPageChange,
   onLimitChange,
+  onCreateTask,
 }) => {
   return (
-    <div
-      className="
-        mt-7
-        overflow-hidden
-        rounded-[var(--radius-md)]
-        border
-        border-[var(--border-color)]
-        bg-[var(--bg-surface)]
-        shadow-[var(--shadow-md)]
-      "
-    >
-      <ul className="list bg-[var(--bg-surface)]">
-        {/* Header */}
-        <li className="p-4 pb-3">
+    <div className="mt-7 flex max-h-[500px] flex-col overflow-hidden rounded-[var(--radius-md)] border border-[var(--border-color)] bg-[var(--bg-surface)] shadow-[var(--shadow-md)]">
+      {/* Header */}
+      <div className="px-4 py-4 flex items-center justify-between">
+        <div className="flex flex-col">
           <h2 className="text-sm font-semibold text-[var(--text-primary)]">
             Tasks
           </h2>
@@ -64,48 +54,38 @@ const TaskList = ({
           <p className="mt-0.5 text-[11px] text-[var(--text-muted)]">
             Manage and track your assigned tasks
           </p>
-        </li>
+        </div>
 
-        {/* Table Header */}
-        <li
-          className="
-            hidden
-            border-t
-            border-[var(--border-color)]
-            bg-[var(--bg-card)]
-            px-4
-            py-3
-            md:grid
-            md:grid-cols-[40px_minmax(220px,1fr)_110px_100px_160px_120px_40px]
-            md:items-center
-            md:gap-3
-          "
-        >
-          <div>
-            <input
-              type="checkbox"
-              className="
-                checkbox
-                checkbox-xs
-                border-[var(--border-color)]
-                bg-[var(--bg-surface)]
-                checked:border-[var(--primary)]
-                checked:bg-[var(--primary)]
-                checked:text-white
-              "
-            />
-          </div>
+        <button
+          type="button"
+          onClick={onCreateTask}
+          className="btn btn-sm bg-[var(--primary)] text-white hover:bg-[var(--primary)]">
+          Create Task
+        </button>
+      </div>
 
-          <Header label="Task" />
-          <Header label="Status" />
-          <Header label="Priority" />
-          <Header label="Assignee" />
-          <Header label="Due Date" />
+      {/* Table Header */}
+      <div
+        className="hidden border-t border-[var(--border-color)] bg-[var(--bg-card)] px-4 py-3 md:grid md:grid-cols-[40px_minmax(220px,1fr)_110px_100px_160px_120px_40px] md:items-center md:gap-3"
+      >
+        <div>
+          <input
+            type="checkbox"
+            className="checkbox  checkbox-xs  border-[var(--border-color)]  bg-[var(--bg-surface)]  checked:border-[var(--primary)]  checked:bg-[var(--primary)]  checked:text-white"
+          />
+        </div>
 
-          <div />
-        </li>
+        <Header label="Task" />
+        <Header label="Status" />
+        <Header label="Priority" />
+        <Header label="Assignee" />
+        <Header label="Due Date" />
 
-        {/* Task Rows */}
+        <div />
+      </div>
+
+      {/* Scrollable Task Area */}
+      <div className="w-full overflow-x-auto">
         {tasks.length > 0 ? (
           tasks.map((task) => (
             <TaskRow
@@ -118,8 +98,9 @@ const TaskList = ({
         ) : (
           <EmptyTasks />
         )}
-      </ul>
+      </div>
 
+      {/* Pagination */}
       <TaskPagination
         currentPage={currentPage}
         totalPages={totalPages}
@@ -140,33 +121,12 @@ const Header = ({ label }) => (
 
 const TaskRow = ({ task, getStatusClass, getPriorityClass }) => {
   return (
-    <li
-      className="
-        list-row
-        border-t
-        border-[var(--border-color)]
-        bg-[var(--bg-surface)]
-        transition-colors
-        hover:bg-[var(--bg-hover)]
-        md:grid
-        md:grid-cols-[40px_minmax(220px,1fr)_110px_100px_160px_120px_40px]
-        md:items-center
-        md:gap-3
-      "
-    >
+    <div className=" min-h-[68px] border-t border-[var(--border-color)] bg-[var(--bg-surface)] px-4 py-3 transition-colors hover:bg-[var(--bg-hover)] md:grid md:grid-cols-[40px_minmax(220px,1fr)_110px_100px_160px_120px_40px] md:items-center md:gap-3">
       {/* Checkbox */}
       <div className="flex items-center">
         <input
           type="checkbox"
-          className="
-            checkbox
-            checkbox-sm
-            border-[var(--border-color)]
-            bg-[var(--bg-surface)]
-            checked:border-[var(--primary)]
-            checked:bg-[var(--primary)]
-            checked:text-white
-          "
+          className="checkbox checkbox-sm border-(--border-color) bg-[var(--bg-surface)] checked:border-[var(--primary)] checked:bg-[var(--primary)] checked:text-white"
         />
       </div>
 
@@ -184,15 +144,7 @@ const TaskRow = ({ task, getStatusClass, getPriorityClass }) => {
       {/* Status */}
       <div>
         <span
-          className={`
-            inline-flex
-            rounded
-            px-2
-            py-1
-            text-[10px]
-            font-medium
-            ${getStatusClass(task.status)}
-          `}
+          className={`inline-flex rounded px-2 py-1 text-[10px] font-medium ${getStatusClass(task.status)}`}
         >
           {task.status}
         </span>
@@ -201,15 +153,7 @@ const TaskRow = ({ task, getStatusClass, getPriorityClass }) => {
       {/* Priority */}
       <div>
         <span
-          className={`
-            inline-flex
-            rounded
-            px-2
-            py-1
-            text-[10px]
-            font-medium
-            ${getPriorityClass(task.priority)}
-          `}
+          className={`inline-flex rounded px-2 py-1 text-[10px] font-medium ${getPriorityClass(task.priority)}`}
         >
           {task.priority}
         </span>
@@ -217,34 +161,20 @@ const TaskRow = ({ task, getStatusClass, getPriorityClass }) => {
 
       {/* Assignee */}
       <div className="flex min-w-0 items-center gap-2">
-        <div
-          className="
-            flex
-            h-7
-            w-7
-            shrink-0
-            items-center
-            justify-center
-            rounded-full
-            bg-[var(--bg-card)]
-            text-[10px]
-            font-semibold
-            text-[var(--text-secondary)]
-            
-          "
-        >
-          {task.assignedTo?.fullname?.firstname?.[0]}
-          {task.assignedTo?.fullname?.lastname?.[0]}
+        <div className=" flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--bg-card)] text-[10px] font-semibold text-[var(--text-secondary)]">
+          {task.assignedTo?.fullname?.firstname?.[0]?.toUpperCase() ?? "U"}
+          {task.assignedTo?.fullname?.lastname?.[0]?.toUpperCase() ?? ""}
         </div>
 
         <span className="truncate text-xs text-[var(--text-secondary)]">
           {task.assignedTo
-            ? `${task.assignedTo.fullname?.firstname?.toUpperCase()} ${task.assignedTo.fullname?.lastname?.toUpperCase()}`
+            ? `${task.assignedTo.fullname?.firstname ?? ""} ${
+                task.assignedTo.fullname?.lastname ?? ""
+              }`
             : "Unassigned"}
         </span>
       </div>
 
-       
       {/* Due Date */}
       <div>
         <span
@@ -254,11 +184,13 @@ const TaskRow = ({ task, getStatusClass, getPriorityClass }) => {
               : "text-[var(--text-secondary)]"
           }`}
         >
-          {new Date(task.dueDate).toLocaleDateString("en-IN", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-          })}
+          {task.dueDate
+            ? new Date(task.dueDate).toLocaleDateString("en-IN", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+              })
+            : "No date"}
         </span>
       </div>
 
@@ -266,35 +198,18 @@ const TaskRow = ({ task, getStatusClass, getPriorityClass }) => {
       <div>
         <button
           type="button"
-          className="
-            btn
-            btn-square
-            btn-ghost
-            btn-sm
-            text-[var(--text-secondary)]
-            hover:bg-[var(--bg-hover)]
-            hover:text-[var(--text-primary)]
-          "
+          className="btn btn-square btn-ghost btn-sm text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
           aria-label="Task actions"
         >
           ⋮
         </button>
       </div>
-    </li>
+    </div>
   );
 };
 
 const EmptyTasks = () => (
-  <li
-    className="
-      border-t
-      border-[var(--border-color)]
-      bg-[var(--bg-surface)]
-      px-4
-      py-12
-      text-center
-    "
-  >
+  <div className=" border-t border-[var(--border-color)] bg-[var(--bg-surface)] px-4 py-12 text-center">
     <p className="text-sm font-medium text-[var(--text-secondary)]">
       No tasks found
     </p>
@@ -302,7 +217,7 @@ const EmptyTasks = () => (
     <p className="mt-1 text-xs text-[var(--text-muted)]">
       There are no tasks available for the selected page.
     </p>
-  </li>
+  </div>
 );
 
 export default TaskList;

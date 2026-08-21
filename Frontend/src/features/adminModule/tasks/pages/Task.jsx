@@ -3,15 +3,18 @@ import useTasks from "../hooks/useTasks";
 import TaskList from "./TaskList";
 import TaskSummary from "./TaskSummary";
 import { useMemo } from "react";
+import TaskModal from "./TaskModal";
 
 const Tasks = () => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
   const { tasks, pagination, isLoading, isFetching, isError } = useTasks({
     page,
     limit,
   });
+  const { createTask, createTaskState } = useTasks();
 
   const summary = useMemo(() => {
     return {
@@ -53,8 +56,12 @@ const Tasks = () => {
   }
 
   return (
-    <div className="min-h-full bg-[var(--bg-main)] p-5 text-[var(--text-primary)] sm:p-6">
-      <TaskSummary summary={summary} tasks={tasks}  totalTasks={pagination.totalTasks ?? 0}/>
+    <div className="h-full w-full bg-[var(--bg-main)] p-5 text-[var(--text-primary)] sm:p-6">
+      <TaskSummary
+        summary={summary}
+        tasks={tasks}
+        totalTasks={pagination.totalTasks ?? 0}
+      />
 
       <TaskList
         tasks={tasks}
@@ -65,7 +72,17 @@ const Tasks = () => {
         onPageChange={handlePageChange}
         onLimitChange={handleLimitChange}
         isFetching={isFetching}
+        onCreateTask={() => setIsTaskModalOpen(true)}
       />
+
+      {isTaskModalOpen && (
+        <TaskModal
+          tasks={tasks}
+          createTask={createTask}
+          createTaskState={createTaskState}
+          onClose={() => setIsTaskModalOpen(false)}
+        />
+      )}
     </div>
   );
 };

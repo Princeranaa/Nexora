@@ -39,7 +39,7 @@ const SUMMARY_CONFIG = [
   },
 ];
 
-const TaskSummary = ({ summary = {}, tasks = [], totalTasks = 0 }) => {
+const TaskSummary = ({ tasks = [], totalTasks = 0 }) => {
   const taskSummary = {
     total: totalTasks,
 
@@ -76,8 +76,8 @@ const TaskSummary = ({ summary = {}, tasks = [], totalTasks = 0 }) => {
               border
               border-[var(--border-color)]
               bg-[var(--bg-surface)]
-              px-4
               py-4
+              px-4
               shadow-[var(--shadow-md)]
             "
           >
