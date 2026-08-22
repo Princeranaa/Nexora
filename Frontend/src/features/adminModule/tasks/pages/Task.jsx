@@ -4,6 +4,8 @@ import TaskList from "./TaskList";
 import TaskSummary from "./TaskSummary";
 import { useMemo } from "react";
 import TaskModal from "./TaskModal";
+import { useDeleteTaskMutation } from "../service/Tasks.service";
+import Swal from "sweetalert2";
 
 const Tasks = () => {
   const [page, setPage] = useState(1);
@@ -15,6 +17,7 @@ const Tasks = () => {
     limit,
   });
   const { createTask, createTaskState } = useTasks();
+  const [deleteTask] = useDeleteTaskMutation();
 
   const summary = useMemo(() => {
     return {
@@ -45,9 +48,46 @@ const Tasks = () => {
     setPage(1);
   };
 
-  if (isLoading) {
-    return <div className="p-6">Loading tasks...</div>;
-  }
+  const handleDelete = async (taskId) => {
+    const result = await Swal.fire({
+      title: "Delete task?",
+      text: "This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#6c757d",
+    });
+
+    if (!result.isConfirmed) {
+      return;
+    }
+
+    // Step 3: Delete only after confirmation
+    try {
+      await deleteTask(taskId).unwrap();
+
+      await Swal.fire({
+        title: "Deleted!",
+        text: "Task has been deleted successfully.",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      // Step 5: Show error if API fails
+      Swal.fire({
+        title: "Error!",
+        text: error?.data?.message || "Failed to delete task.",
+        icon: "error",
+      });
+    }
+  };
+
+  // if (isLoading) {
+  //   return <div className="p-6">Loading tasks...</div>;
+  // }
 
   if (isError) {
     return (
@@ -65,6 +105,7 @@ const Tasks = () => {
 
       <TaskList
         tasks={tasks}
+        onDelete={handleDelete}
         currentPage={pagination.currentPage ?? page}
         totalPages={pagination.totalPages ?? 1}
         limit={pagination.limit ?? limit}

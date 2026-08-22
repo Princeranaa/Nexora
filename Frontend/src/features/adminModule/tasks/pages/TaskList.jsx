@@ -21,7 +21,8 @@ const getPriorityClass = (priority) => {
   const priorityClasses = {
     High: "bg-[color-mix(in_srgb,var(--danger)_12%,transparent)] text-[var(--danger)]",
 
-    Medium: "bg-[color-mix(in_srgb,var(--warning)_14%,transparent)] text-[var(--warning)]",
+    Medium:
+      "bg-[color-mix(in_srgb,var(--warning)_14%,transparent)] text-[var(--warning)]",
 
     Low: "bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-[var(--primary)]",
   };
@@ -41,6 +42,7 @@ const TaskList = ({
   onPageChange,
   onLimitChange,
   onCreateTask,
+  onDelete
 }) => {
   return (
     <div className="mt-7 flex max-h-[500px] flex-col overflow-hidden rounded-[var(--radius-md)] border border-[var(--border-color)] bg-[var(--bg-surface)] shadow-[var(--shadow-md)]">
@@ -59,15 +61,14 @@ const TaskList = ({
         <button
           type="button"
           onClick={onCreateTask}
-          className="btn btn-sm bg-[var(--primary)] text-white hover:bg-[var(--primary)]">
+          className="btn btn-sm bg-[var(--primary)] text-white hover:bg-[var(--primary)]"
+        >
           Create Task
         </button>
       </div>
 
       {/* Table Header */}
-      <div
-        className="hidden border-t border-[var(--border-color)] bg-[var(--bg-card)] px-4 py-3 md:grid md:grid-cols-[40px_minmax(220px,1fr)_110px_100px_160px_120px_40px] md:items-center md:gap-3"
-      >
+      <div className="hidden border-t border-[var(--border-color)] bg-[var(--bg-card)] px-4 py-3 md:grid md:grid-cols-[40px_minmax(220px,1fr)_110px_100px_160px_120px_40px] md:items-center md:gap-3">
         <div>
           <input
             type="checkbox"
@@ -89,6 +90,7 @@ const TaskList = ({
         {tasks.length > 0 ? (
           tasks.map((task) => (
             <TaskRow
+            onDelete={onDelete}
               key={task._id}
               task={task}
               getStatusClass={getStatusClass}
@@ -119,7 +121,7 @@ const Header = ({ label }) => (
   </div>
 );
 
-const TaskRow = ({ task, getStatusClass, getPriorityClass }) => {
+const TaskRow = ({ task, getStatusClass, getPriorityClass,onDelete }) => {
   return (
     <div className=" min-h-[68px] border-t border-[var(--border-color)] bg-[var(--bg-surface)] px-4 py-3 transition-colors hover:bg-[var(--bg-hover)] md:grid md:grid-cols-[40px_minmax(220px,1fr)_110px_100px_160px_120px_40px] md:items-center md:gap-3">
       {/* Checkbox */}
@@ -195,14 +197,32 @@ const TaskRow = ({ task, getStatusClass, getPriorityClass }) => {
       </div>
 
       {/* Actions */}
-      <div>
+      <div className="dropdown dropdown-end">
         <button
           type="button"
+          tabIndex={0}
           className="btn btn-square btn-ghost btn-sm text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
           aria-label="Task actions"
         >
           ⋮
         </button>
+
+        <ul
+          tabIndex={0}
+          className="dropdown-content menu z-10 mt-2 w-32 rounded-[var(--radius-md)] border border-[var(--border-color)] bg-[var(--bg-surface)] p-1 shadow-[var(--shadow-md)]"
+        >
+          <li>
+            <button type="button">Edit</button>
+          </li>
+
+          <li>
+            <button 
+            onClick={() => onDelete(task._id)}
+            type="button" className="text-[var(--danger)]">
+              Delete
+            </button>
+          </li>
+        </ul>
       </div>
     </div>
   );
