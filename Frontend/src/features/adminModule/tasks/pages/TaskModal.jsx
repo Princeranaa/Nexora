@@ -1,23 +1,57 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import { CheckCircle2, ChevronDown, X } from "lucide-react";
+
 import SegmentButton from "../../Components/SegmentButton";
 import TaskDatePicker from "./TaskDatePicker";
 
-const STATUS_OPTIONS = ["Pending", "In Progress"];
+const STATUS_OPTIONS = ["Pending", "In Progress", "Completed"];
 const PRIORITY_OPTIONS = ["Low", "Medium", "High"];
 
-const TaskModal = ({ onClose, createTask, createTaskState, tasks }) => {
+const TaskModal = ({
+  onClose,
+  createTask,
+  createTaskState,
+  updateTask,
+  updateTaskState,
+  tasks,
+  task,
+}) => {
+  const isEditMode = Boolean(task);
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     assignedTo: "",
     dueDate: "",
-    priority: "",
-    status: "",
+    priority: "Medium",
+    status: "Pending",
   });
+
+  useEffect(() => {
+    if (task) {
+      setFormData({
+        title: task.title ?? "",
+        description: task.description ?? "",
+        assignedTo: task.assignedTo?._id ?? "",
+        dueDate: task.dueDate ? task.dueDate.split("T")[0] : "",
+        priority: task.priority ?? "Medium",
+        status: task.status ?? "Pending",
+      });
+    } else {
+      setFormData({
+        title: "",
+        description: "",
+        assignedTo: "",
+        dueDate: "",
+        priority: "Medium",
+        status: "Pending",
+      });
+    }
+  }, [task]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
+
     setFormData((previous) => ({
       ...previous,
       [name]: value,
@@ -26,6 +60,7 @@ const TaskModal = ({ onClose, createTask, createTaskState, tasks }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
     const payload = {
       title: formData.title,
       description: formData.description,
@@ -36,37 +71,51 @@ const TaskModal = ({ onClose, createTask, createTaskState, tasks }) => {
     };
 
     try {
-      await createTask(payload).unwrap();
-      console.log("Task created successfully");
+      if (isEditMode) {
+
+        await updateTask({
+          taskId: task._id,
+          data: payload,
+        }).unwrap();
+      } else {
+        await createTask(payload).unwrap();
+      }
+
       onClose();
     } catch (error) {
-      console.error("Failed to create task:", error);
+      console.error(
+        isEditMode ? "Failed to update task:" : "Failed to create task:",
+        error,
+      );
     }
   };
 
+  const isSubmitting = createTaskState.isLoading || updateTaskState.isLoading;
+
   return (
-    <div className=" fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Overlay */}
       <div
         onClick={onClose}
-        className=" absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-xl max-h-[90vh] overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-2xl">
+      <div className="relative max-h-[90vh] w-full max-w-xl overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-2xl">
         {/* Header */}
-        <div className=" flex items-center justify-between border-b border-base-300 px-6 py-5">
+        <div className="flex items-center justify-between border-b border-base-300 px-6 py-5">
           <div className="flex items-center gap-2">
             <CheckCircle2 size={20} className="text-primary" />
+
             <h2 className="text-lg font-semibold text-base-content">
-              Create Task
+              {isEditMode ? "Edit Task" : "Create Task"}
             </h2>
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            className=" rounded-md text-base-content/60 transition hover:text-base-content"
+            className="rounded-md text-base-content/60 transition hover:text-base-content"
           >
             <X size={20} />
           </button>
@@ -75,13 +124,12 @@ const TaskModal = ({ onClose, createTask, createTaskState, tasks }) => {
         {/* Form */}
         <form
           onSubmit={handleSubmit}
-          className=" flex max-h-[calc(90vh-145px)] flex-col"
+          className="flex max-h-[calc(90vh-145px)] flex-col"
         >
-          {/* Body */}
-          <div className=" space-y-5 overflow-y-auto p-6 custom-scrollbar">
-            {/* Task Title */}
+          <div className="custom-scrollbar space-y-5 overflow-y-auto p-6">
+            {/* Title */}
             <div className="space-y-1.5">
-              <label className=" text-xs font-medium text-base-content/70">
+              <label className="text-xs font-medium text-base-content/70">
                 Task Title
               </label>
 
@@ -92,13 +140,13 @@ const TaskModal = ({ onClose, createTask, createTaskState, tasks }) => {
                 onChange={handleChange}
                 placeholder="e.g. Optimize training pipeline"
                 required
-                className=" outline-none input input-bordered w-full bg-base-200"
+                className="input input-bordered w-full bg-base-200 outline-none"
               />
             </div>
 
             {/* Description */}
             <div className="space-y-1.5">
-              <label className=" text-xs font-medium text-base-content/70">
+              <label className="text-xs font-medium text-base-content/70">
                 Description
               </label>
 
@@ -109,15 +157,15 @@ const TaskModal = ({ onClose, createTask, createTaskState, tasks }) => {
                 placeholder="Describe the task scope and deliverables..."
                 rows={3}
                 required
-                className="outline-none textarea textarea-bordered w-full resize-none bg-base-200"
+                className="textarea textarea-bordered w-full resize-none bg-base-200 outline-none"
               />
             </div>
 
             {/* Assignee + Due Date */}
-            <div className=" grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {/* Assignee */}
               <div className="space-y-1.5">
-                <label className=" text-xs font-medium text-base-content/70">
+                <label className="text-xs font-medium text-base-content/70">
                   Assignee
                 </label>
 
@@ -133,27 +181,27 @@ const TaskModal = ({ onClose, createTask, createTaskState, tasks }) => {
                       Select User
                     </option>
 
-                    {tasks.map((task) => (
+                    {tasks.map((taskItem) => (
                       <option
-                        key={task.assignedTo._id}
-                        value={task.assignedTo._id}
+                        key={taskItem.assignedTo._id}
+                        value={taskItem.assignedTo._id}
                       >
-                        {task.assignedTo.fullname.firstname}{" "}
-                        {task.assignedTo.fullname.lastname}
+                        {taskItem.assignedTo.fullname.firstname}{" "}
+                        {taskItem.assignedTo.fullname.lastname}
                       </option>
                     ))}
                   </select>
 
                   <ChevronDown
                     size={16}
-                    className=" pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-base-content/60"
+                    className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-base-content/60"
                   />
                 </div>
               </div>
 
               {/* Due Date */}
               <div className="space-y-1.5">
-                <label className=" text-xs font-medium text-base-content/70">
+                <label className="text-xs font-medium text-base-content/70">
                   Due Date
                 </label>
 
@@ -170,11 +218,11 @@ const TaskModal = ({ onClose, createTask, createTaskState, tasks }) => {
             </div>
 
             {/* Status + Priority */}
-            <div className=" grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {/* Status */}
               <div className="space-y-1.5">
-                <label className=" text-xs font-medium text-base-content/70">
-                  Initial Status
+                <label className="text-xs font-medium text-base-content/70">
+                  Status
                 </label>
 
                 <div className="flex rounded-lg border border-base-300 bg-base-200 p-1">
@@ -196,7 +244,7 @@ const TaskModal = ({ onClose, createTask, createTaskState, tasks }) => {
 
               {/* Priority */}
               <div className="space-y-1.5">
-                <label className=" text-xs font-medium text-base-content/70">
+                <label className="text-xs font-medium text-base-content/70">
                   Priority
                 </label>
 
@@ -229,8 +277,16 @@ const TaskModal = ({ onClose, createTask, createTaskState, tasks }) => {
               Discard
             </button>
 
-            <button type="submit" className="btn btn-primary btn-sm px-6">
-              Create Task
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="btn btn-primary btn-sm px-6"
+            >
+              {isSubmitting
+                ? "Saving..."
+                : isEditMode
+                  ? "Update Task"
+                  : "Create Task"}
             </button>
           </div>
         </form>

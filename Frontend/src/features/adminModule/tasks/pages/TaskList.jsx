@@ -42,7 +42,8 @@ const TaskList = ({
   onPageChange,
   onLimitChange,
   onCreateTask,
-  onDelete
+  onEdit,
+  onDelete,
 }) => {
   return (
     <div className="mt-7 flex max-h-[500px] flex-col overflow-hidden rounded-[var(--radius-md)] border border-[var(--border-color)] bg-[var(--bg-surface)] shadow-[var(--shadow-md)]">
@@ -90,7 +91,8 @@ const TaskList = ({
         {tasks.length > 0 ? (
           tasks.map((task) => (
             <TaskRow
-            onDelete={onDelete}
+              onEdit={onEdit}
+              onDelete={onDelete}
               key={task._id}
               task={task}
               getStatusClass={getStatusClass}
@@ -121,7 +123,13 @@ const Header = ({ label }) => (
   </div>
 );
 
-const TaskRow = ({ task, getStatusClass, getPriorityClass,onDelete }) => {
+const TaskRow = ({
+  task,
+  getStatusClass,
+  getPriorityClass,
+  onEdit,
+  onDelete,
+}) => {
   return (
     <div className=" min-h-[68px] border-t border-[var(--border-color)] bg-[var(--bg-surface)] px-4 py-3 transition-colors hover:bg-[var(--bg-hover)] md:grid md:grid-cols-[40px_minmax(220px,1fr)_110px_100px_160px_120px_40px] md:items-center md:gap-3">
       {/* Checkbox */}
@@ -212,13 +220,23 @@ const TaskRow = ({ task, getStatusClass, getPriorityClass,onDelete }) => {
           className="dropdown-content menu z-10 mt-2 w-32 rounded-[var(--radius-md)] border border-[var(--border-color)] bg-[var(--bg-surface)] p-1 shadow-[var(--shadow-md)]"
         >
           <li>
-            <button type="button">Edit</button>
+            <button
+              onClick={() => {
+                console.log("EDIT CLICKED", task);
+                onEdit(task);
+              }}
+              type="button"
+            >
+              Edit
+            </button>
           </li>
 
           <li>
-            <button 
-            onClick={() => onDelete(task._id)}
-            type="button" className="text-[var(--danger)]">
+            <button
+              onClick={() => onDelete(task._id)}
+              type="button"
+              className="text-[var(--danger)]"
+            >
               Delete
             </button>
           </li>

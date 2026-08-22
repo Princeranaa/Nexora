@@ -1,8 +1,7 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import useTasks from "../hooks/useTasks";
 import TaskList from "./TaskList";
 import TaskSummary from "./TaskSummary";
-import { useMemo } from "react";
 import TaskModal from "./TaskModal";
 import { useDeleteTaskMutation } from "../service/Tasks.service";
 import Swal from "sweetalert2";
@@ -11,33 +10,57 @@ const Tasks = () => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [deleteTask] = useDeleteTaskMutation();
 
-  const { tasks, pagination, isLoading, isFetching, isError } = useTasks({
+  const {
+    tasks,
+    pagination,
+    isLoading,
+    isFetching,
+    isError,
+    createTask,
+    createTaskState,
+    updateTask,
+    updateTaskState,
+  } = useTasks({
     page,
     limit,
   });
-  const { createTask, createTaskState } = useTasks();
-  const [deleteTask] = useDeleteTaskMutation();
 
-  const summary = useMemo(() => {
-    return {
-      total: pagination.totalTasks ?? 0,
+  const summary = {
+    total: pagination.totalTasks ?? 0,
+    pending: 0,
+    inProgress: 0,
+    completed: 0,
+    overdue: 0,
+  };
 
-      pending: tasks.filter((task) => task.status === "Pending").length,
+  const now = new Date();
 
-      inProgress: tasks.filter((task) => task.status === "In Progress").length,
+  tasks.forEach((task) => {
+    switch (task.status) {
+      case "Pending":
+        summary.pending++;
+        break;
 
-      completed: tasks.filter((task) => task.status === "Completed").length,
+      case "In Progress":
+        summary.inProgress++;
+        break;
 
-      overdue: tasks.filter((task) => {
-        if (!task.dueDate) return false;
+      case "Completed":
+        summary.completed++;
+        break;
+    }
 
-        return (
-          new Date(task.dueDate) < new Date() && task.status !== "Completed"
-        );
-      }).length,
-    };
-  }, [tasks, pagination.totalTasks]);
+    if (
+      task.dueDate &&
+      new Date(task.dueDate) < now &&
+      task.status !== "Completed"
+    ) {
+      summary.overdue++;
+    }
+  });
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
@@ -46,6 +69,21 @@ const Tasks = () => {
   const handleLimitChange = (newLimit) => {
     setLimit(newLimit);
     setPage(1);
+  };
+
+  const handleCreateTask = () => {
+    setSelectedTask(null);
+    setIsTaskModalOpen(true);
+  };
+
+  const handleEditTask = (task) => {
+    setSelectedTask(task);
+    setIsTaskModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedTask(null);
+    setIsTaskModalOpen(false);
   };
 
   const handleDelete = async (taskId) => {
@@ -85,10 +123,6 @@ const Tasks = () => {
     }
   };
 
-  // if (isLoading) {
-  //   return <div className="p-6">Loading tasks...</div>;
-  // }
-
   if (isError) {
     return (
       <div className="p-6 text-[var(--danger)]">Failed to load tasks.</div>
@@ -106,6 +140,7 @@ const Tasks = () => {
       <TaskList
         tasks={tasks}
         onDelete={handleDelete}
+        onEdit={handleEditTask}
         currentPage={pagination.currentPage ?? page}
         totalPages={pagination.totalPages ?? 1}
         limit={pagination.limit ?? limit}
@@ -118,10 +153,18 @@ const Tasks = () => {
 
       {isTaskModalOpen && (
         <TaskModal
+          // tasks={tasks}
+          // createTask={createTask}
+          // createTaskState={createTaskState}
+          // onCreateTask={handleCreateTask}
+          // onClose={() => setIsTaskModalOpen(false)}
+          task={selectedTask}
           tasks={tasks}
           createTask={createTask}
           createTaskState={createTaskState}
-          onClose={() => setIsTaskModalOpen(false)}
+          updateTask={updateTask}
+          updateTaskState={updateTaskState}
+          onClose={handleCloseModal}
         />
       )}
     </div>
