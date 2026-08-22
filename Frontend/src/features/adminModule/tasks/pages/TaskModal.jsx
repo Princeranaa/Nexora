@@ -72,7 +72,6 @@ const TaskModal = ({
 
     try {
       if (isEditMode) {
-
         await updateTask({
           taskId: task._id,
           data: payload,
@@ -89,6 +88,12 @@ const TaskModal = ({
       );
     }
   };
+
+  const uniqueUsers = Array.from(
+    new Map(
+      tasks.map((taskItem) => [taskItem.assignedTo?._id, taskItem.assignedTo]),
+    ).values(),
+  );
 
   const isSubmitting = createTaskState.isLoading || updateTaskState.isLoading;
 
@@ -181,13 +186,9 @@ const TaskModal = ({
                       Select User
                     </option>
 
-                    {tasks.map((taskItem) => (
-                      <option
-                        key={taskItem.assignedTo._id}
-                        value={taskItem.assignedTo._id}
-                      >
-                        {taskItem.assignedTo.fullname.firstname}{" "}
-                        {taskItem.assignedTo.fullname.lastname}
+                    {uniqueUsers.map((user) => (
+                      <option key={user._id} value={user._id}>
+                        {user.fullname.firstname} {user.fullname.lastname}
                       </option>
                     ))}
                   </select>

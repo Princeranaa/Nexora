@@ -1,0 +1,127 @@
+import { userModel } from "../models/User.model.js";
+import bcrypt from "bcrypt";
+
+export const createEmployee = async (req, res) => {
+  try {
+    const {
+      email,
+      fullname: { firstname, lastname },
+      password,
+    } = req.body;
+
+    const isUserExist = await userModel.findOne({ email });
+
+    if (isUserExist) {
+      return res.status(400).json({
+        message: "User Already Exist",
+      });
+    }
+
+    const hash = await bcrypt.hash(password, 10);
+
+    const employee = await userModel.create({
+      email,
+      fullname: {
+        firstname,
+        lastname,
+      },
+      password: hash,
+      role: "employee",
+    });
+
+    return res.status(201).json({
+      message: "Employee created successfully",
+      employee: {
+        _id: employee._id,
+        email: employee.email,
+        fullname: employee.fullname,
+        role: employee.role,
+      },
+    });
+  } catch (error) {
+    console.error("Create employee error:", error);
+
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+export const getAllEmployees = async (req, res) => {
+  try {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const search = req.query.search?.trim() || "";
+
+    const skip = (page - 1) * limit;
+
+    const filter = {
+      role: "employee",
+    };
+
+    if (search) {
+      const searchTerms = search.split(/\s+/).filter(Boolean);
+
+      filter.$or = [
+        {
+          "fullname.firstname": {
+            $regex: search,
+            $options: "i",
+          },
+        },
+        {
+          "fullname.lastname": {
+            $regex: search,
+            $options: "i",
+          },
+        },
+        {
+          email: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+        {
+          $expr: {
+            $regexMatch: {
+              input: {
+                $concat: ["$fullname.firstname", " ", "$fullname.lastname"],
+              },
+              regex: search,
+              options: "i",
+            },
+          },
+        },
+      ];
+    }
+
+    const [employees, totalEmployees] = await Promise.all([
+      userModel
+        .find(filter)
+        .select("-password")
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 }),
+
+      userModel.countDocuments(filter),
+    ]);
+
+    const totalPages = Math.ceil(totalEmployees / limit);
+
+    res.status(200).json({
+      employees,
+      pagination: {
+        currentPage: page,
+        limit,
+        totalEmployees,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to fetch employees",
+    });
+  }
+};

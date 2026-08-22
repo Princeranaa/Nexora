@@ -18,10 +18,7 @@ export async function getAllEmployee(page = 1, limit = 10, search = "") {
 
 export async function addEmployee(employeeData) {
   try {
-    const response = await api.post("/register", {
-      ...employeeData,
-      role: "employee",
-    });
+    const response = await api.post("/employees", employeeData);
     return response.data;
   } catch (error) {
     console.log("error", error);
