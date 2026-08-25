@@ -8,7 +8,7 @@ const router = express.Router();
 router.post("/register", registerValidation, register);
 router.post("/login", loginValidation, login);
 router.get("/profile", authMiddleware, getMe);
-router.patch("/profile", authMiddleware, updateMe);
+router.patch("/update-profile", authMiddleware, updateMe);
 
 router.get("/logout", logout);
 
