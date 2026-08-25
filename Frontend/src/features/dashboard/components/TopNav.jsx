@@ -1,6 +1,7 @@
-import { Bell, Menu, Moon, Search, Sun } from "lucide-react";
+import { Bell, LogOut, LogOutIcon, Menu, Moon, Search, Sun } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleTheme } from "../../../Shared/State/ThemSlice.jsx";
+import { useAuth } from "../hooks/useAuth.hooks.jsx";
 
 const TopNav = () => {
   const { mode } = useSelector((state) => state.theme);
@@ -9,6 +10,8 @@ const TopNav = () => {
   const handleClick = () => {
     dispatch(toggleTheme());
   };
+
+  const {handleLogout} = useAuth();
 
   return (
     <header className="flex h-16 w-full items-center justify-end px-4 md:px-6">
@@ -50,8 +53,10 @@ const TopNav = () => {
           type="button"
           className="rounded-lg p-2 transition hover:bg-[var(--bg-hover)]"
           aria-label="Open menu"
+          onClick={handleLogout}
         >
-          <Menu size={20} />
+          {/* <Menu size={20} /> */}
+          <LogOutIcon size={20}/>
         </button>
       </div>
     </header>

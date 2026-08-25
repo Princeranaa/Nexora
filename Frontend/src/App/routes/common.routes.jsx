@@ -8,7 +8,7 @@ export let commonRoutes = [
     element: <Home />,
   },
   {
-    path: "/home/chat",
+    path: "chat",
     element: <Chats />,
   },
   {
