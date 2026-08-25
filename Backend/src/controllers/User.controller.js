@@ -120,5 +120,29 @@ export const logout = async (req, res) => {
   }
 };
 
+export const updateMe = async (req, res) => {
+  try {
+    const { email, fullname: { firstname, lastname }} = req.body;
+    const userId = req.user;
+    const updatedUser = await userModel.findByIdAndUpdate(
+      userId,
+      { email, fullname: { firstname, lastname } },
+      { new: true, runValidators: true },
+    );
 
+    if (!updatedUser) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
 
+    res.status(200).json({
+      message: "Profile updated successfully",
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to update profile",
+    });
+  }
+};
