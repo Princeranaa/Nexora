@@ -3,11 +3,15 @@ import { useNavigate } from "react-router";
 import { Mail, Lock, Share2, ArrowRight } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { Link } from "react-router";
+import { useSelector } from "react-redux";
 
 export default function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });
+
   const { handleLogin } = useAuth();
   const navigate = useNavigate();
+  const { error } = useSelector((state) => state.auth);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -25,7 +29,7 @@ export default function Login() {
     };
 
     await handleLogin(Payload);
-    navigate('/home')
+    navigate("/home");
   };
 
   return (
@@ -81,6 +85,12 @@ export default function Login() {
               <p className="text-sm text-zinc-400 mt-2">
                 Enter your credentials to access your account.
               </p>
+
+              {error && (
+                <div className="mt-4 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3">
+                  <p className="text-sm text-red-400">{error}</p>
+                </div>
+              )}
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
@@ -181,7 +191,8 @@ export default function Login() {
 
             <p className="text-center text-sm text-zinc-400 pt-4">
               Don't have an account?{" "}
-              <Link to={'/register'}
+              <Link
+                to={"/register"}
                 href="#register"
                 className="text-purple-400 font-semibold hover:text-purple-300 hover:underline transition-colors"
               >

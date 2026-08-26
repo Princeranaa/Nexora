@@ -57,7 +57,9 @@ export function useAuth() {
       const response = await getMe();
       dispatch(setEmployee(response?.user));
     } catch (error) {
-      dispatch(setError(error?.response?.data?.message));
+      if (error.response?.status !== 401) {
+        dispatch(setError(error.response?.data?.message));
+      }
     } finally {
       dispatch(setLoading(false));
     }
@@ -66,6 +68,6 @@ export function useAuth() {
   return {
     handleLogin,
     handleRegister,
-    handleGetMe
+    handleGetMe,
   };
 }

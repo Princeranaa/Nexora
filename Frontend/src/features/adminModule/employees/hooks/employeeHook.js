@@ -1,5 +1,10 @@
-import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
-import { getAllEmployee, addEmployee } from "../service/employeeApi.service";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  keepPreviousData,
+} from "@tanstack/react-query";
+import { getAllEmployee, addEmployee, updateEmployeeStatus } from "../service/employeeApi.service";
 import { useEffect, useState } from "react";
 
 export const useEmployee = (page, search) => {
@@ -29,7 +34,6 @@ export const useAddEmployee = () => {
   });
 };
 
-
 export const useDebounce = (value, delay = 400) => {
   const [debouncedValue, setDebouncedValue] = useState(value);
 
@@ -42,4 +46,23 @@ export const useDebounce = (value, delay = 400) => {
   }, [value, delay]);
 
   return debouncedValue;
+};
+
+export const useUpdateEmployeeStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ employeeId, status }) =>
+      updateEmployeeStatus(employeeId, status),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["employees"],
+      });
+    },
+
+    onError: (error) => {
+      console.log("Failed to update employee status:", error);
+    },
+  });
 };

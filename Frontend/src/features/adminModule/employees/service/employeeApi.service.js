@@ -25,3 +25,15 @@ export async function addEmployee(employeeData) {
     throw error;
   }
 }
+
+export async function updateEmployeeStatus(employeeId, status) {
+  try {
+    const response = await api.patch(`/employees/${employeeId}/status`, {
+      status,
+    });
+    return response.data;
+  } catch (error) {
+    console.log("error", error);
+    throw error;
+  }
+}

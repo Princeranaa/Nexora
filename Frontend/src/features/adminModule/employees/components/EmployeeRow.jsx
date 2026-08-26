@@ -1,32 +1,15 @@
 import { MoreVertical } from "lucide-react";
 import { useState } from "react";
 
-const EmployeeRow = ({ employee }) => {
+const EmployeeRow = ({ employee, onStatusChange, isStatusUpdating }) => {
   const [open, setOpen] = useState(false);
 
   return (
-    <tr
-      className="
-        border-b border-[var(--border-color)]
-        hover:bg-[var(--bg-hover)]
-        transition
-      "
-    >
+    <tr className="border-b border-[var(--border-color)] hover:bg-[var(--bg-hover)] transition">
       {/* Employee */}
       <td className="px-4 py-2.5">
         <div className="flex items-center gap-2.5">
-          <div
-            className="
-              flex items-center justify-center
-              w-8 h-8
-              rounded-full
-              bg-[var(--primary)]
-              text-[var(--tertiary)]
-              font-semibold
-              text-xs
-              shrink-0
-            "
-          >
+          <div className=" flex items-center justify-center w-8 h-8 rounded-full bg-[var(--primary)] text-[var(--tertiary)] font-semibold text-xs shrink-0">
             {employee.fullname.firstname[0]}
             {employee.fullname.lastname[0]}
           </div>
@@ -75,48 +58,72 @@ const EmployeeRow = ({ employee }) => {
       </td>
 
       {/* Action */}
-      <td className="px-4 py-2.5 text-right">
-        <div className="relative inline-block">
-          <button
-            type="button"
-            onClick={() => setOpen((prev) => !prev)}
-            className="
-        p-1.5
-        text-[var(--text-muted)]
-        hover:bg-[var(--bg-hover)]
-        rounded-lg
-        cursor-pointer
-        transition
-      "
+      <td className="px-4 py-2.5">
+        <div className="flex items-center justify-end gap-2">
+          {/* Current Status */}
+          <span
+            className={` inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium capitalize 
+          ${
+            employee.status === "active"
+              ? "bg-green-500/10 text-green-400"
+              : "bg-red-500/10 text-red-400"
+          }`}
           >
-            <MoreVertical size={16} />
-          </button>
+            {employee.status}
+          </span>
 
-          {open && (
-            <div
-              className="absolute right-0 top-8 z-50 w-32 rounded-lg border border-white/10 bg-[var(--bg-card)] shadow-lg p-1"
+          {/* Dropdown */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setOpen((prev) => !prev)}
+              disabled={isStatusUpdating}
+              className=" p-1.5 text-[var(--text-muted)] hover:bg-[var(--bg-hover)] rounded-lg cursor-pointer transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <button
-                type="button"
-                onClick={() => {
-                setOpen(false);
-                }}
-                className=" w-full px-3 py-2 text-left text-sm text-[var(--text-primary)] hover:bg-[var(--bg-hover)] rounded-md transition"
-              >
-                Active
-              </button>
+              <MoreVertical size={16} />
+            </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                setOpen(false);
-                }}
-                className="w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 rounded-md transition"
-              >
-                Inactive
-              </button>
-            </div>
-          )}
+            {open && (
+              <div className=" absolute right-0 top-8 z-50 w-32 rounded-lg border border-white/10 bg-[var(--bg-card)] shadow-lg p-1">
+                {/* Active */}
+                <button
+                  type="button"
+                  disabled={isStatusUpdating}
+                  onClick={() => {
+                    onStatusChange(employee._id, "active");
+                    setOpen(false);
+                  }}
+                  className={`w-full px-3 py-2 text-left text-sm rounded-md transition flex items-center justify-between disabled:opacity-50 *:${
+                    employee.status === "active"
+                      ? "text-green-400 bg-green-500/10"
+                      : "text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
+                  }`}
+                >
+                  Active
+                  {employee.status === "active" && <span>✓</span>}
+                </button>
+
+                {/* Inactive */}
+                <button
+                  type="button"
+                  disabled={isStatusUpdating}
+                  onClick={() => {
+                    onStatusChange(employee._id, "inactive");
+                    setOpen(false);
+                  }}
+                  className={` w-full px-3 py-2 text-left text-sm rounded-md transition flex items-center justify-between disabled:opacity-50
+                    ${
+                      employee.status === "inactive"
+                        ? "text-red-400 bg-red-500/10"
+                        : "text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
+                    }`}
+                >
+                  Inactive
+                  {employee.status === "inactive" && <span>✓</span>}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </td>
     </tr>

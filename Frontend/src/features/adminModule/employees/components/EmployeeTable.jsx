@@ -7,6 +7,8 @@ const EmployeeTable = ({
   setSearch,
   setPage,
   totalEmployees,
+  onStatusChange,
+  isStatusUpdating,
 }) => {
   return (
     <>
@@ -90,6 +92,8 @@ const EmployeeTable = ({
               <EmployeeRow
                 key={employee._id}
                 employee={employee}
+                onStatusChange={onStatusChange}
+                isStatusUpdating={isStatusUpdating}
               />
             ))}
           </tbody>

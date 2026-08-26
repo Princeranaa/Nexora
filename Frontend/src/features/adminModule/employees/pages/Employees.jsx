@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useDebounce } from "../hooks/employeeHook";
+import { useDebounce, useUpdateEmployeeStatus } from "../hooks/employeeHook";
 import { useEmployee } from "../hooks/employeeHook";
 
 import EmployeeHeader from "../components/EmployeeHeader";
@@ -25,10 +25,18 @@ const Employees = () => {
   // -----------------------------
   // API
   // -----------------------------
-  const { data, isPending, isFetching } = useEmployee(
-    page,
-    debouncedSearch
-  );
+  const { data, isPending, isFetching } = useEmployee(page, debouncedSearch);
+
+  // active and inactive
+  const { mutate: updateStatus, isPending: updateStatusPending } =
+    useUpdateEmployeeStatus();
+
+  const handleStatusChange = (employeeId, status) => {
+    updateStatus({
+      employeeId,
+      status,
+    });
+  };
 
   // -----------------------------
   // Loading
@@ -59,25 +67,14 @@ const Employees = () => {
   // -----------------------------
   // Pagination Information
   // -----------------------------
-  const start =
-    totalEmployees === 0
-      ? 0
-      : (currentPage - 1) * limit + 1;
+  const start = totalEmployees === 0 ? 0 : (currentPage - 1) * limit + 1;
 
-  const end = Math.min(
-    currentPage * limit,
-    totalEmployees
-  );
+  const end = Math.min(currentPage * limit, totalEmployees);
 
   return (
     <div className="h-full min-h-0 p-4 flex flex-col gap-4">
-
       {/* Header */}
-      <EmployeeHeader
-        onAddEmployee={() =>
-          navigate("/home/employee/add")
-        }
-      />
+      <EmployeeHeader onAddEmployee={() => navigate("/home/employee/add")} />
 
       {/* Employee Table */}
       <div
@@ -99,6 +96,8 @@ const Employees = () => {
           setSearch={setSearch}
           setPage={setPage}
           totalEmployees={totalEmployees}
+          onStatusChange={handleStatusChange}
+          isStatusUpdating={updateStatusPending}
         />
 
         {/* Pagination */}
@@ -112,7 +111,6 @@ const Employees = () => {
           totalEmployees={totalEmployees}
           setPage={setPage}
         />
-
       </div>
     </div>
   );
