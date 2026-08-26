@@ -55,41 +55,54 @@ export const register = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  const user = await userModel.findOne({ email });
+    const user = await userModel.findOne({ email });
 
-  if (!user) {
-    return res.status(400).json({ message: "Invalid email or password" });
+    if (!user) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+
+    if (user.status === "inactive") {
+      return res.status(403).json({
+        message:
+          "Your account has been deactivated. Please contact your administrator.",
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        id: user._id,
+        role: user.role,
+        fullname: user.fullname,
+      },
+      config.JWT_SECRET,
+      { expiresIn: "2d" },
+    );
+
+    res.cookie("token", token);
+
+    res.status(200).json({
+      message: "User logged in successfully",
+      user: {
+        id: user._id,
+        email: user.email,
+        fullname: user.fullname,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
   }
-
-  const isPasswordValid = await bcrypt.compare(password, user.password);
-
-  if (!isPasswordValid) {
-    return res.status(400).json({ message: "Invalid email or password" });
-  }
-
-  const token = jwt.sign(
-    {
-      id: user._id,
-      role: user.role,
-      fullname: user.fullname,
-    },
-    config.JWT_SECRET,
-    { expiresIn: "2d" },
-  );
-
-  res.cookie("token", token);
-
-  res.status(200).json({
-    message: "User logged in successfully",
-    user: {
-      id: user._id,
-      email: user.email,
-      fullname: user.fullname,
-      role: user.role,
-    },
-  });
 };
 
 export const getMe = async (req, res) => {
@@ -122,7 +135,10 @@ export const logout = async (req, res) => {
 
 export const updateMe = async (req, res) => {
   try {
-    const { email, fullname: { firstname, lastname }} = req.body;
+    const {
+      email,
+      fullname: { firstname, lastname },
+    } = req.body;
     const userId = req.user;
     const updatedUser = await userModel.findByIdAndUpdate(
       userId,
@@ -138,10 +154,10 @@ export const updateMe = async (req, res) => {
 
     res.status(200).json({
       message: "Profile updated successfully",
-      user : updatedUser,
+      user: updatedUser,
     });
   } catch (error) {
-    console.log("update profile error", error)
+    console.log("update profile error", error);
     res.status(500).json({
       message: "Failed to update profile",
     });

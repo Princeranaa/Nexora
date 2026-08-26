@@ -125,3 +125,41 @@ export const getAllEmployees = async (req, res) => {
     });
   }
 };
+
+export const updateEmployeeStatus = async (req, res) => {
+  try {
+    const { employeeId } = req.params;
+    const { status } = req.body;
+
+    if (!["active", "inactive"].includes(status)) {
+      return res.status(400).json({
+        message: "Invalid status",
+      });
+    }
+
+    const employee = await userModel.findOne({
+      _id: employeeId,
+      role: "employee",
+    });
+
+    if (!employee) {
+      return res.status(404).json({
+        message: "Employee not found",
+      });
+    }
+
+    employee.status = status;
+
+    await employee.save();
+
+    return res.status(200).json({
+      message: `Employee ${status} successfully`,
+      employee:employee.status,
+    });
+  } catch (error) {
+    console.log("error", error)
+    return res.status(500).json({
+      message: "Something went wrong",
+    });
+  }
+};
