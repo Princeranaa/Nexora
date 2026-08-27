@@ -13,23 +13,11 @@ const EmployeeTable = ({
   return (
     <>
       {/* Search */}
-      <div
-        className="
-          flex items-center justify-between
-          px-4 py-3
-          border-b border-[var(--border-color)]
-          shrink-0
-        "
-      >
+      <div className=" flex items-center justify-between px-4 py-3 border-b rounded-[var(--radius-md)] border border-[var(--border-color)] bg-[var(--bg-surface)] shadow-[var(--shadow-md)] shrink-0">
         <div className="relative w-72">
           <Search
             size={16}
-            className="
-              absolute left-3 top-1/2
-              -translate-y-1/2
-              text-[var(--text-muted)]
-              pointer-events-none
-            "
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none"
           />
 
           <input
@@ -61,9 +49,9 @@ const EmployeeTable = ({
       </div>
 
       {/* Table */}
-      <div className="flex-1 min-h-0 overflow-auto">
-        <table className="w-full">
-          <thead className="sticky top-0 bg-[var(--bg-card)] z-10">
+      <div className="flex-1 min-h-0 overflow-auto bg-[var(--bg-surface)]">
+        <table className="w-full ">
+          <thead className="sticky top-0 z-10">
             <tr className="border-b border-[var(--border-color)]">
               <th className="px-4 py-2.5 text-left text-[11px] font-medium text-[var(--text-muted)]">
                 Employee

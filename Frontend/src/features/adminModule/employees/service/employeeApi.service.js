@@ -9,7 +9,7 @@ export async function getAllEmployee(page = 1, limit = 10, search = "") {
         search,
       },
     });
-    // console.log("response", response.data);
+   
     return response.data;
   } catch (error) {
     console.log("error", error);

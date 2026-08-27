@@ -60,8 +60,6 @@ export const getAllEmployees = async (req, res) => {
     };
 
     if (search) {
-      const searchTerms = search.split(/\s+/).filter(Boolean);
-
       filter.$or = [
         {
           "fullname.firstname": {
@@ -95,21 +93,43 @@ export const getAllEmployees = async (req, res) => {
       ];
     }
 
-    const [employees, totalEmployees] = await Promise.all([
-      userModel
-        .find(filter)
-        .select("-password")
-        .skip(skip)
-        .limit(limit)
-        .sort({ createdAt: -1 }),
+    const activeFilter = {
+      ...filter,
+      status: "active",
+    };
 
-      userModel.countDocuments(filter),
-    ]);
+    const inactiveFilter = {
+      ...filter,
+      status: "inactive",
+    };
+
+    const [employees, totalEmployees, activeEmployees, inactiveEmployees] =
+      await Promise.all([
+        userModel
+          .find(filter)
+          .select("-password")
+          .skip(skip)
+          .limit(limit)
+          .sort({ createdAt: -1 }),
+
+        userModel.countDocuments(filter),
+
+        userModel.countDocuments(activeFilter),
+
+        userModel.countDocuments(inactiveFilter),
+      ]);
 
     const totalPages = Math.ceil(totalEmployees / limit);
 
     res.status(200).json({
       employees,
+
+      employeeStats: {
+        totalEmployees,
+        activeEmployees,
+        inactiveEmployees,
+      },
+
       pagination: {
         currentPage: page,
         limit,
@@ -154,10 +174,10 @@ export const updateEmployeeStatus = async (req, res) => {
 
     return res.status(200).json({
       message: `Employee ${status} successfully`,
-      employee:employee.status,
+      employee: employee.status,
     });
   } catch (error) {
-    console.log("error", error)
+    console.log("error", error);
     return res.status(500).json({
       message: "Something went wrong",
     });

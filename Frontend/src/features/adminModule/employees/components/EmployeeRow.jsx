@@ -5,7 +5,7 @@ const EmployeeRow = ({ employee, onStatusChange, isStatusUpdating }) => {
   const [open, setOpen] = useState(false);
 
   return (
-    <tr className="border-b border-[var(--border-color)] hover:bg-[var(--bg-hover)] transition">
+    <tr className="border-b rounded-[var(--radius-md)] border border-[var(--border-color)] bg-[var(--bg-surface)] shadow-[var(--shadow-md)] hover:bg-[var(--bg-hover)] transition">
       {/* Employee */}
       <td className="px-4 py-2.5">
         <div className="flex items-center gap-2.5">

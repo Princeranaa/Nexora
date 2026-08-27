@@ -2,7 +2,7 @@ import { Plus } from "lucide-react";
 
 const EmployeeHeader = ({ onAddEmployee }) => {
   return (
-    <div className="flex items-center justify-between shrink-0">
+    <div className="flex items-center justify-between shrink-0 ">
       <div>
         <h1 className="text-xl font-semibold text-[var(--text-primary)]">
           Employees

@@ -1,7 +1,4 @@
-import {
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const EmployeePagination = ({
   currentPage,
@@ -15,12 +12,7 @@ const EmployeePagination = ({
 }) => {
   return (
     <div
-      className="
-        flex items-center justify-between
-        px-4 py-2.5
-        border-t border-[var(--border-color)]
-        shrink-0
-      "
+      className=" flex items-center justify-between px-4 py-2.5 shrink-0 bg-[var(--bg-main)] rounded-[var(--radius-md)] border border-[var(--border-color)] bg-[var(--bg-surface)] shadow-[var(--shadow-md)]"
     >
       <p className="text-[11px] text-[var(--text-muted)]">
         Showing{" "}
@@ -28,19 +20,14 @@ const EmployeePagination = ({
           {start}-{end}
         </span>{" "}
         of{" "}
-        <span className="text-[var(--text-secondary)]">
-          {totalEmployees}
-        </span>
+        <span className="text-[var(--text-secondary)]">{totalEmployees}</span>
       </p>
 
       <div className="flex items-center gap-1">
-
         {/* Previous */}
         <button
           disabled={!hasPreviousPage}
-          onClick={() =>
-            setPage((prev) => prev - 1)
-          }
+          onClick={() => setPage((prev) => prev - 1)}
           className="
             p-1.5
             rounded-lg
@@ -56,14 +43,12 @@ const EmployeePagination = ({
         </button>
 
         {/* Pages */}
-        {Array.from(
-          { length: totalPages },
-          (_, index) => index + 1
-        ).map((pageNumber) => (
-          <button
-            key={pageNumber}
-            onClick={() => setPage(pageNumber)}
-            className={`
+        {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+          (pageNumber) => (
+            <button
+              key={pageNumber}
+              onClick={() => setPage(pageNumber)}
+              className={`
               w-7 h-7
               rounded-lg
               text-[11px]
@@ -71,21 +56,20 @@ const EmployeePagination = ({
 
               ${
                 currentPage === pageNumber
-                  ? "bg-[var(--tertiary)] text-black font-semibold"
-                  : "text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]"
+                  ? "bg-[var(--primary)] text-white font-semibold"
+                  : "text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
               }
             `}
-          >
-            {pageNumber}
-          </button>
-        ))}
+            >
+              {pageNumber}
+            </button>
+          ),
+        )}
 
         {/* Next */}
         <button
           disabled={!hasNextPage}
-          onClick={() =>
-            setPage((prev) => prev + 1)
-          }
+          onClick={() => setPage((prev) => prev + 1)}
           className="
             p-1.5
             rounded-lg
@@ -99,7 +83,6 @@ const EmployeePagination = ({
         >
           <ChevronRight size={15} />
         </button>
-
       </div>
     </div>
   );
