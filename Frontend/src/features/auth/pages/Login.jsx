@@ -28,8 +28,10 @@ export default function Login() {
       password,
     };
 
-    await handleLogin(Payload);
-    navigate("/home");
+    const success = await handleLogin(Payload);
+    if (success) {
+      navigate("/home");
+    }
   };
 
   return (
@@ -86,11 +88,11 @@ export default function Login() {
                 Enter your credentials to access your account.
               </p>
 
-              {error && (
+              {/* {error && (
                 <div className="mt-4 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3">
                   <p className="text-sm text-red-400">{error}</p>
                 </div>
-              )}
+              )} */}
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
