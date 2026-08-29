@@ -4,7 +4,7 @@ import Settings from "../../features/settings/pages/Settings.jsx";
 
 export let commonRoutes = [
   {
-    path: "",
+    path: "/home/dashboard",
     element: <Home />,
   },
   {
