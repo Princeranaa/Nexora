@@ -1,5 +1,5 @@
-import { Users, UserCheck, UserX, } from "lucide-react";
- 
+import { Users, UserCheck, UserX } from "lucide-react";
+
 import StatCard from "../components/StatCard";
 import RecentActivity from "../components/RecentActivity";
 import { useEmployee } from "../../adminModule/employees/hooks/employeeHook";
@@ -30,11 +30,11 @@ const Home = () => {
     <div className="w-full">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-base-content">
+        <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
           Dashboard
         </h1>
 
-        <p className="mt-1 text-sm text-base-content/60">
+        <p className="mt-1 text-sm text-[var(--text-muted)]">
           Here's an overview of your CMS.
         </p>
       </div>

@@ -58,23 +58,20 @@ const RecentActivity = () => {
   ];
 
   return (
-    <div className="card mt-6 border border-base-300 bg-base-100 shadow-sm">
+    <div className="mt-6 overflow-hidden rounded-[var(--radius-md)] border border-[var(--border-color)] bg-[var(--bg-card)] shadow-[var(--shadow-md)]">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-base-300 px-5 py-4">
+      <div className="flex items-center justify-between border-b border-[var(--border-color)] px-5 py-4">
         <div>
-          <h2 className="font-semibold text-base-content">
+          <h2 className="font-semibold text-[var(--text-primary)]">
             Recent Activity
           </h2>
 
-          <p className="mt-1 text-xs text-base-content/60">
+          <p className="mt-1 text-xs text-[var(--text-muted)]">
             Latest activity across your CMS
           </p>
         </div>
 
-        <Clock3
-          size={20}
-          className="text-base-content/50"
-        />
+        <Clock3 size={20} className="text-[var(--text-muted)]" />
       </div>
 
       {/* Activity List */}
@@ -86,7 +83,7 @@ const RecentActivity = () => {
           return (
             <div
               key={activity.id}
-              className="flex gap-3 border-b border-base-300 px-5 py-4 last:border-b-0"
+              className="flex gap-3 border-b border-[var(--border-color)] px-5 py-4 last:border-b-0 hover:bg-[var(--bg-hover)]"
             >
               {/* Icon */}
               <div
@@ -97,11 +94,11 @@ const RecentActivity = () => {
 
               {/* Content */}
               <div className="min-w-0 flex-1">
-                <p className="text-sm text-base-content">
+                <p className="text-sm text-[var(--text-primary)]">
                   {activity.message}
                 </p>
 
-                <p className="mt-1 text-xs text-base-content/50">
+                <p className="mt-1 text-xs text-[var(--text-muted)]">
                   {activity.time}
                 </p>
               </div>
@@ -111,8 +108,8 @@ const RecentActivity = () => {
       </div>
 
       {/* Footer */}
-      <div className="border-t border-base-300 px-5 py-3">
-        <button className="btn btn-ghost btn-sm">
+      <div className="border-t border-[var(--border-color)] px-5 py-3">
+        <button className="rounded-md px-3 py-2 text-sm text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]">
           View all activity →
         </button>
       </div>
