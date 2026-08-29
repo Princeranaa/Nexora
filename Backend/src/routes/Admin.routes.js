@@ -6,7 +6,7 @@ import { updateEmployeeStatus } from "../controllers/Admin.controller.js";
 const router = express.Router();
 
 router.post("/employees", adminMiddleware, createEmployee);
-router.get("/employees", adminMiddleware, getAllEmployees);
+router.get("/employees",  getAllEmployees);
 router.patch("/employees/:employeeId/status",  adminMiddleware, updateEmployeeStatus)
 
 export default router;
