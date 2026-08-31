@@ -1,4 +1,9 @@
-import { CheckCircle2, Clock3, ListTodo } from "lucide-react";
+
+import {
+  CheckCircle2,
+  Clock3,
+  ListTodo,
+} from "lucide-react";
 
 export const TaskSummary = ({ summary }) => {
   const cards = [
@@ -6,49 +11,64 @@ export const TaskSummary = ({ summary }) => {
       title: "Total Tasks",
       value: summary.total,
       icon: ListTodo,
-      type: "total",
     },
     {
       title: "Pending",
       value: summary.pending,
       icon: Clock3,
-      type: "pending",
     },
     {
       title: "In Progress",
       value: summary.inProgress,
       icon: Clock3,
-      type: "progress",
     },
     {
       title: "Completed",
       value: summary.completed,
       icon: CheckCircle2,
-      type: "completed",
     },
   ];
 
   return (
-    <section className="task-summary-grid">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       {cards.map((card) => {
         const Icon = card.icon;
 
         return (
-          <article
+          <div
             key={card.title}
-            className={`task-summary-card ${card.type}`}
+            className="
+              bg-base-100
+              border border-base-300
+              rounded-xl
+              p-4
+              shadow-sm
+            "
           >
-            <div className="task-summary-content">
-              <span>{card.title}</span>
-              <strong>{card.value}</strong>
-            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-base-content/60">
+                  {card.title}
+                </p>
 
-            <div className="task-summary-icon">
-              <Icon size={21} />
+                <p className="text-2xl font-bold mt-1">
+                  {card.value}
+                </p>
+              </div>
+
+              <div className="p-2 rounded-lg bg-base-200">
+                <Icon
+                  size={20}
+                  className="text-primary"
+                />
+              </div>
             </div>
-          </article>
+          </div>
         );
       })}
-    </section>
+    </div>
   );
 };
+
+export default TaskSummary;
+ 

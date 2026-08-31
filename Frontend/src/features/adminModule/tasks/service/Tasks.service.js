@@ -9,7 +9,6 @@ export const taskApi = createApi({
   tagTypes: ["Tasks"],
 
   endpoints: (builder) => ({
-    
     getTasks: builder.query({
       query: (params) => ({
         url: "/tasks",
@@ -48,6 +47,28 @@ export const taskApi = createApi({
 
       invalidatesTags: ["Tasks"],
     }),
+
+    /*  Perticuler  Employees API's     */
+
+    getEmployeeTasks: builder.query({
+      query: () => ({
+        url: "/employee/tasks",
+        method: "GET",
+      }),
+      providesTags: ["Tasks"],
+    }),
+
+    updateEmployeeTaskStatus: builder.mutation({
+      query: ({ taskId, status }) => ({
+        url: `/employee/${taskId}/status`,
+        method: "PATCH",
+        data: {
+          status,
+        },
+      }),
+
+      invalidatesTags: ["Tasks"],
+    }),
   }),
 });
 
@@ -56,4 +77,8 @@ export const {
   useCreateTaskMutation,
   useUpdateTaskMutation,
   useDeleteTaskMutation,
+
+  // Perticuler  Employees API's
+  useGetEmployeeTasksQuery,
+  useUpdateEmployeeTaskStatusMutation,
 } = taskApi;

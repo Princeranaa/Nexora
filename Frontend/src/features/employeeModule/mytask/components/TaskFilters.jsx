@@ -1,21 +1,27 @@
 export const TaskFilters = ({ activeFilter, onFilterChange }) => {
   const filters = ["All", "Pending", "In Progress", "Completed"];
+
   return (
-    <section className="task-filters">
-      {" "}
+    <div className="flex flex-wrap gap-2">
       {filters.map((item) => (
         <button
           key={item}
           type="button"
-          className={
-            activeFilter === item ? "task-filter active" : "task-filter"
-          }
           onClick={() => onFilterChange(item)}
+          className={`
+            btn btn-sm
+            ${
+              activeFilter === item
+                ? "btn-primary"
+                : "btn-ghost border border-base-300"
+            }
+          `}
         >
-          {" "}
-          {item}{" "}
+          {item}
         </button>
-      ))}{" "}
-    </section>
+      ))}
+    </div>
   );
 };
+
+export default TaskFilters;
