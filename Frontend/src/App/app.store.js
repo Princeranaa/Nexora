@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import authSlice from "../features/auth/auth.slice";
 import themSlice from "../Shared/State/ThemSlice";
 import { taskApi } from "../features/adminModule/tasks/service/Tasks.service";
+import { activityApi } from "../features/dashboard/service/api.service";
 
 export const store = configureStore({
   reducer: {
@@ -9,7 +10,8 @@ export const store = configureStore({
     theme: themSlice,
 
     [taskApi.reducerPath]: taskApi.reducer,
+    [activityApi.reducerPath]: activityApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(taskApi.middleware),
+    getDefaultMiddleware().concat(taskApi.middleware, activityApi.middleware),
 });

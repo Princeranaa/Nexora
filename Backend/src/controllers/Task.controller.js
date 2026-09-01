@@ -1,5 +1,6 @@
 import { taskModel } from "../models/Task.model.js";
 import { userModel } from "../models/User.model.js";
+import { logActivity } from "../services/Activity.service.js";
 
 export const createTask = async (req, res) => {
   try {
@@ -36,6 +37,19 @@ export const createTask = async (req, res) => {
       dueDate,
       priority,
       createdBy: req.user._id,
+    });
+
+    logActivity({
+      performedBy: req.user._id,
+      module: "TASK",
+      action: "TASK_CREATED",
+      description: `Created new task "${task.title}"`,
+      entity: {
+        entityType: "Task",
+        entityId: task._id,
+        entityTitle: task.title,
+      },
+      metadata: { priority, assignedTo },
     });
 
     return res.status(201).json({
@@ -97,15 +111,42 @@ export const viewTask = async (req, res) => {
 export const updateTask = async (req, res) => {
   try {
     const { taskId } = req.params;
+
     const { title, description, assignedTo, dueDate, priority, status } =
       req.body;
 
-    // Build update object only from provided fields
+    // --------------------------------------------------
+    // 1. Find existing task first
+    // --------------------------------------------------
+
+    const existingTask = await taskModel.findById(taskId);
+
+    if (!existingTask) {
+      return res.status(404).json({
+        message: "Task not found",
+      });
+    }
+
+    // Store previous status before updating
+    const previousStatus = existingTask.status;
+
+    // --------------------------------------------------
+    // 2. Build update object only from provided fields
+    // --------------------------------------------------
+
     const updates = Object.fromEntries(
-      Object.entries({ title, description, dueDate, priority, status }).filter(
-        ([, value]) => value !== undefined,
-      ),
+      Object.entries({
+        title,
+        description,
+        dueDate,
+        priority,
+        status,
+      }).filter(([, value]) => value !== undefined),
     );
+
+    // --------------------------------------------------
+    // 3. Validate assigned employee
+    // --------------------------------------------------
 
     if (assignedTo) {
       const isEmployee = await userModel.exists({
@@ -114,27 +155,65 @@ export const updateTask = async (req, res) => {
       });
 
       if (!isEmployee) {
-        return res
-          .status(404)
-          .json({ message: "Employee not found or not an employee" });
+        return res.status(404).json({
+          message: "Employee not found or not an employee",
+        });
       }
+
       updates.assignedTo = assignedTo;
     }
+
+    // --------------------------------------------------
+    // 4. Update task
+    // --------------------------------------------------
 
     const task = await taskModel.findByIdAndUpdate(taskId, updates, {
       new: true,
       runValidators: true,
     });
 
-    if (!task) {
-      return res.status(404).json({ message: "Task not found" });
+    // --------------------------------------------------
+    // 5. Log status activity ONLY when status changes
+    // --------------------------------------------------
+
+    if (status !== undefined && status !== previousStatus) {
+      await logActivity({
+        performedBy: req.user._id,
+
+        module: "TASK",
+
+        action: "TASK_STATUS_CHANGED",
+
+        description: `Changed status of task "${task.title}" from ${previousStatus} to ${status}`,
+
+        entity: {
+          entityType: "Task",
+          entityId: task._id,
+          entityTitle: task.title,
+        },
+
+        metadata: {
+          from: previousStatus,
+          to: status,
+        },
+      });
     }
 
-    return res.status(200).json({ message: "Task updated successfully", task });
+    // --------------------------------------------------
+    // 6. Response
+    // --------------------------------------------------
+
+    return res.status(200).json({
+      message: "Task updated successfully",
+      task,
+    });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Internal server error", error: error.message });
+    console.error("Update task error:", error);
+
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
   }
 };
 
@@ -147,6 +226,19 @@ export const deleteTask = async (req, res) => {
     if (!task) {
       return res.status(404).json({ message: "Task not found" });
     }
+
+    // Record Activity
+    await logActivity({
+      performedBy: req.user._id,
+      module: "TASK",
+      action: "TASK_DELETED",
+      description: `Deleted task "${task.title}"`,
+      entity: {
+        entityType: "Task",
+        entityId: task._id,
+        entityTitle: task.title,
+      },
+    });
 
     return res.status(200).json({
       message: "Task deleted successfully",

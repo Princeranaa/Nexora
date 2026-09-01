@@ -1,4 +1,5 @@
 import { taskModel } from "../models/Task.model.js";
+import { logActivity } from "../services/Activity.service.js";
 
 export const getEmployeeTasks = async (req, res) => {
   try {
@@ -53,8 +54,33 @@ export const updateEmployeeTaskStatus = async (req, res) => {
       });
     }
 
+    // Store previous status before updating
+    const previousStatus = task.status;
+
+    // Prevent redundant update
+    if (previousStatus === status) {
+      return res.status(200).json({
+        success: true,
+        message: `Task is already ${status}`,
+        task,
+      });
+    }
+
     task.status = status;
     await task.save();
+
+    logActivity({
+      performedBy: req.user._id,
+      module: "TASK",
+      action: "TASK_STATUS_CHANGED",
+      description: `Changed status of task "${task.title}" from ${previousStatus} to ${status}`,
+      entity: {
+        entityType: "Task",
+        entityId: task._id,
+        entityTitle: task.title,
+      },
+      metadata: { from: previousStatus, to: status },
+    });
 
     return res.status(200).json({
       success: true,

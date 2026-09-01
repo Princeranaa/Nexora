@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import config from "../config/config.js";
 import { userModel } from "../models/User.model.js";
+import { logActivity } from "../services/Activity.service.js";
 
 export const register = async (req, res) => {
   try {
@@ -88,6 +89,19 @@ export const login = async (req, res) => {
     );
 
     res.cookie("token", token);
+
+    logActivity({
+      performedBy: user._id,
+      module: "AUTH",
+      action: "USER_LOGIN",
+      description: `${user.fullname.firstname} ${user.fullname.lastname} logged into the system`,
+      entity: {
+        entityType: "User",
+        entityId: user._id,
+        entityTitle: `${user.fullname.firstname} ${user.fullname.lastname}`,
+      },
+      metadata: { ip: req.ip, userAgent: req.headers["user-agent"] },
+    });
 
     res.status(200).json({
       message: "User logged in successfully",

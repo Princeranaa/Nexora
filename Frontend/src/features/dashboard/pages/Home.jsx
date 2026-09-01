@@ -1,7 +1,7 @@
 import { Users, UserCheck, UserX } from "lucide-react";
 
 import StatCard from "../components/StatCard";
-import RecentActivity from "../components/RecentActivity";
+import {RecentActivity} from "../components/RecentActivity";
 import { useEmployee } from "../../adminModule/employees/hooks/employeeHook";
 
 const Home = () => {

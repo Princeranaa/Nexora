@@ -1,5 +1,6 @@
 import { userModel } from "../models/User.model.js";
 import bcrypt from "bcrypt";
+import { logActivity } from "../services/Activity.service.js";
 
 export const createEmployee = async (req, res) => {
   try {
@@ -27,6 +28,19 @@ export const createEmployee = async (req, res) => {
       },
       password: hash,
       role: "employee",
+    });
+
+    logActivity({
+      performedBy: req.user._id,
+      module: "EMPLOYEE",
+      action: "EMPLOYEE_CREATED",
+      description: `Added new employee ${employee.fullname.firstname} ${employee.fullname.lastname}`,
+      entity: {
+        entityType: "User",
+        entityId: employee._id,
+        entityTitle: `${employee.fullname.firstname} ${employee.fullname.lastname}`,
+      },
+      metadata: { role: employee.role, email: employee.email },
     });
 
     return res.status(201).json({
@@ -171,6 +185,19 @@ export const updateEmployeeStatus = async (req, res) => {
     employee.status = status;
 
     await employee.save();
+
+    logActivity({
+      performedBy: req.user._id,
+      module: "EMPLOYEE",
+      action: actionType,
+      description: `${status === "inactive" ? "Deactivated" : "Activated"} employee ${employee.fullname.firstname} ${employee.fullname.lastname}`,
+      entity: {
+        entityType: "User",
+        entityId: employee._id,
+        entityTitle: `${employee.fullname.firstname} ${employee.fullname.lastname}`,
+      },
+      metadata: { status },
+    });
 
     return res.status(200).json({
       message: `Employee ${status} successfully`,
