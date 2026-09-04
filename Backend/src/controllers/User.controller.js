@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import config from "../config/config.js";
 import { userModel } from "../models/User.model.js";
 import { logActivity } from "../services/Activity.service.js";
+import { chatModel } from "../models/Chat.model.js";
 
 export const register = async (req, res) => {
   try {
@@ -174,6 +175,35 @@ export const updateMe = async (req, res) => {
     console.log("update profile error", error);
     res.status(500).json({
       message: "Failed to update profile",
+    });
+  }
+};
+
+export const getOrCreateChat = async (req, res) => {
+  try {
+    // const currentUserId = req.user;
+    const otherUserId = req.params.userId;
+
+    let chat = await chatModel.findOne({
+      participants: {
+        $all: [currentUserId, otherUserId],
+      },
+    });
+
+    if (!chat) {
+      chat = await chatModel.create({
+        participants: [currentUserId, otherUserId],
+      });
+    }
+
+    res.status(200).json({
+      message: "Chat fetched successfully",
+      chat,
+    });
+  } catch (error) {
+    console.log("error", error);
+    res.status(500).json({
+      message: "Something went wrong",
     });
   }
 };
