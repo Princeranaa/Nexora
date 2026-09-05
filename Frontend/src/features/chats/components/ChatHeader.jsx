@@ -22,11 +22,13 @@ const ChatHeader = ({
 }) => {
   if (!user) return null;
 
-  const initials = `${user.firstname?.[0] ?? ""}${user.lastname?.[0] ?? ""}`;
+  const fname = user.fullname?.firstname || user.firstname || "User";
+  const lname = user.fullname?.lastname || user.lastname || "";
+  const initials = `${fname[0] ?? ""}${lname[0] ?? ""}`.toUpperCase();
   const isAdmin = user.role === "admin";
 
   const handleCall = (type) => {
-    alert(`Initiating ${type} call with ${user.firstname} ${user.lastname}...`);
+    alert(`Initiating ${type} call with ${fname} ${lname}...`);
   };
 
   return (
@@ -61,7 +63,7 @@ const ChatHeader = ({
             </div>
             <span
               className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-[var(--bg-card)] ${
-                user.online
+                user.online || user.status === "active"
                   ? "bg-emerald-500 ring-2 ring-emerald-500/20"
                   : "bg-gray-400"
               }`}
@@ -75,7 +77,7 @@ const ChatHeader = ({
           >
             <div className="flex items-center gap-2">
               <h3 className="truncate text-sm font-bold text-[var(--text-primary)]">
-                {user.firstname} {user.lastname}
+                {fname} {lname}
               </h3>
               <span
                 className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-semibold tracking-wide ${
@@ -92,11 +94,11 @@ const ChatHeader = ({
             <div className="flex items-center gap-1.5 text-[11px] text-[var(--text-muted)]">
               <span
                 className={`h-1.5 w-1.5 rounded-full ${
-                  user.online ? "bg-emerald-500" : "bg-gray-400"
+                  user.online || user.status === "active" ? "bg-emerald-500" : "bg-gray-400"
                 }`}
               />
               <span className="truncate">
-                {user.online ? "Active Now" : user.lastSeen || "Offline"} · {user.department || "Enterprise"}
+                {user.online || user.status === "active" ? "Active Now" : user.lastSeen || "Offline"} · {user.email || "Enterprise"}
               </span>
             </div>
           </div>

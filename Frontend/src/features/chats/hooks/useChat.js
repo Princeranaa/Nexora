@@ -1,45 +1,92 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useSelector } from "react-redux";
-import { initialUsers, initialConversations } from "../service/chatMockData";
+import {
+  useGetChatUsersQuery,
+  useGetOrCreateChatQuery,
+  useSendMessageMutation,
+} from "../service/chat.api";
 
 export const useChat = (targetUserId) => {
   const currentAuthUser = useSelector((state) => state.auth?.employee);
+  const currentUserId = currentAuthUser?._id || currentAuthUser?.id;
 
-  const [users, setUsers] = useState(initialUsers);
-  const [conversations, setConversations] = useState(initialConversations);
-  const [filterRole, setFilterRole] = useState("all"); // 'all' | 'admin' | 'employee' | 'unread'
+  // 1. Fetch all users from backend API
+  const {
+    data: fetchedUsers = [],
+    isLoading: isUsersLoading,
+    isError: isUsersError,
+    error: usersError,
+    refetch: refetchUsers,
+  } = useGetChatUsersQuery();
+
+  // 2. Fetch or create chat conversation when targetUserId is selected
+  const {
+    data: currentChat,
+    isLoading: isChatLoading,
+    isError: isChatError,
+    error: chatError,
+    refetch: refetchChat,
+  } = useGetOrCreateChatQuery(targetUserId, {
+    skip: !targetUserId,
+  });
+
+  // 3. Send message mutation
+  const [sendMsgMutation, { isLoading: isSending }] = useSendMessageMutation();
+
+  // Local state for UI controls
+  const [filterRole, setFilterRole] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
   const [replyingTo, setReplyingTo] = useState(null);
   const [infoDrawerOpen, setInfoDrawerOpen] = useState(false);
   const [chatSearchOpen, setChatSearchOpen] = useState(false);
   const [chatSearchQuery, setChatSearchQuery] = useState("");
+  const [localOptimisticMessages, setLocalOptimisticMessages] = useState([]);
 
+  // Normalize user list (excluding current logged-in user)
+  const users = useMemo(() => {
+    return (fetchedUsers || [])
+      .filter((u) => u._id !== currentUserId)
+      .map((u) => ({
+        ...u,
+        firstname: u.fullname?.firstname || u.firstname || "User",
+        lastname: u.fullname?.lastname || u.lastname || "",
+        online: u.status === "active",
+      }));
+  }, [fetchedUsers, currentUserId]);
+
+  // Identify active selected user
   const activeUser = useMemo(() => {
     if (!targetUserId) return null;
-    return (
-      users.find((u) => u._id === targetUserId) || {
-        _id: targetUserId,
-        firstname: "Team",
-        lastname: "Member",
-        role: "employee",
-        department: "General",
-        online: true,
-        lastSeen: "Online now",
-      }
-    );
-  }, [targetUserId, users]);
 
-  // Mark messages as read when opening a conversation
-  useEffect(() => {
-    if (targetUserId) {
-      setUsers((prev) =>
-        prev.map((u) => (u._id === targetUserId ? { ...u, unread: 0 } : u))
+    // Look in users list
+    const found = users.find((u) => u._id === targetUserId);
+    if (found) return found;
+
+    // Look in chat participants
+    if (currentChat?.participants) {
+      const participant = currentChat.participants.find(
+        (p) => (p._id || p) === targetUserId
       );
+      if (participant && typeof participant === "object") {
+        return {
+          ...participant,
+          firstname: participant.fullname?.firstname || participant.firstname || "User",
+          lastname: participant.fullname?.lastname || participant.lastname || "",
+          online: participant.status === "active",
+        };
+      }
     }
-  }, [targetUserId]);
 
-  // Filtered contacts based on search query & active category filter
+    return {
+      _id: targetUserId,
+      firstname: "Team",
+      lastname: "Member",
+      role: "employee",
+      online: true,
+    };
+  }, [targetUserId, users, currentChat]);
+
+  // Filtered contacts based on search query & role category filter
   const filteredUsers = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
 
@@ -48,51 +95,91 @@ export const useChat = (targetUserId) => {
       const matchesSearch =
         !q ||
         fullname.includes(q) ||
-        u.role.toLowerCase().includes(q) ||
-        (u.department && u.department.toLowerCase().includes(q)) ||
-        (u.lastMessage && u.lastMessage.toLowerCase().includes(q));
+        (u.email && u.email.toLowerCase().includes(q)) ||
+        (u.role && u.role.toLowerCase().includes(q));
 
       if (!matchesSearch) return false;
 
       if (filterRole === "admin") return u.role === "admin";
       if (filterRole === "employee") return u.role === "employee";
-      if (filterRole === "unread") return (u.unread || 0) > 0;
 
       return true;
     });
   }, [users, searchQuery, filterRole]);
 
-  // Messages for the active conversation
+  // Combine backend messages + local optimistic messages for active chat
   const activeMessages = useMemo(() => {
     if (!targetUserId) return [];
-    const msgs = conversations[targetUserId] || [];
-    if (!chatSearchQuery.trim()) return msgs;
+
+    const serverMessages = (currentChat?.messages || []).map((m) => {
+      const senderIdStr = typeof m.senderId === "object" ? m.senderId?._id : m.senderId;
+      const isMe = senderIdStr === currentUserId;
+
+      const createdDate = m.createdAt ? new Date(m.createdAt) : new Date();
+      const timeString = createdDate.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+      return {
+        id: m._id || m.id,
+        _id: m._id,
+        senderId: isMe ? "me" : senderIdStr,
+        rawSenderId: senderIdStr,
+        senderName: isMe
+          ? "You"
+          : `${activeUser?.firstname || "Team"} ${activeUser?.lastname || "Member"}`,
+        senderRole: isMe ? currentAuthUser?.role || "employee" : activeUser?.role || "employee",
+        text: m.text,
+        timestamp: timeString,
+        date: "Today",
+        status: "read",
+        attachments: m.attachments || [],
+        reactions: m.reactions || [],
+        replyTo: m.replyTo || null,
+      };
+    });
+
+    // Merge server messages with pending optimistic messages
+    const allMessages = [...serverMessages, ...localOptimisticMessages];
+
+    if (!chatSearchQuery.trim()) return allMessages;
 
     const sq = chatSearchQuery.toLowerCase().trim();
-    return msgs.filter(
-      (m) => m.text?.toLowerCase().includes(sq) || m.senderName?.toLowerCase().includes(sq)
+    return allMessages.filter(
+      (m) =>
+        m.text?.toLowerCase().includes(sq) ||
+        m.senderName?.toLowerCase().includes(sq)
     );
-  }, [conversations, targetUserId, chatSearchQuery]);
+  }, [
+    currentChat,
+    targetUserId,
+    currentUserId,
+    activeUser,
+    currentAuthUser,
+    localOptimisticMessages,
+    chatSearchQuery,
+  ]);
 
-  // Send a new message
+  // Send message handler
   const sendMessage = useCallback(
-    ({ text, attachments = [], replyTo = null }) => {
-      if (!targetUserId || (!text.trim() && attachments.length === 0)) return;
+    async ({ text, attachments = [], replyTo = null }) => {
+      if (!targetUserId || !text.trim()) return;
 
+      const trimmedText = text.trim();
       const now = new Date();
       const timeString = now.toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
       });
 
-      const newMsg = {
-        id: `msg_${Date.now()}`,
+      const tempId = `temp_${Date.now()}`;
+      const optimisticMsg = {
+        id: tempId,
         senderId: "me",
-        senderName: currentAuthUser
-          ? `${currentAuthUser.firstname || "You"} ${currentAuthUser.lastname || ""}`.trim()
-          : "You",
-        senderRole: currentAuthUser?.role || "admin",
-        text: text.trim(),
+        senderName: "You",
+        senderRole: currentAuthUser?.role || "employee",
+        text: trimmedText,
         timestamp: timeString,
         date: "Today",
         status: "sent",
@@ -107,192 +194,49 @@ export const useChat = (targetUserId) => {
         reactions: [],
       };
 
-      // Optimistically add message
-      setConversations((prev) => ({
-        ...prev,
-        [targetUserId]: [...(prev[targetUserId] || []), newMsg],
-      }));
-
-      // Update last message in sidebar
-      setUsers((prev) =>
-        prev.map((u) =>
-          u._id === targetUserId
-            ? {
-                ...u,
-                lastMessage: text.trim() || (attachments.length ? `[${attachments[0].name}]` : ""),
-                lastMessageTime: timeString,
-              }
-            : u
-        )
-      );
-
-      // Reset reply state
+      // Optimistically show message immediately
+      setLocalOptimisticMessages((prev) => [...prev, optimisticMsg]);
       setReplyingTo(null);
 
-      // Transition status from sent -> delivered -> read
-      setTimeout(() => {
-        setConversations((prev) => {
-          const list = prev[targetUserId] || [];
-          return {
-            ...prev,
-            [targetUserId]: list.map((m) =>
-              m.id === newMsg.id ? { ...m, status: "delivered" } : m
-            ),
-          };
-        });
-      }, 1000);
-
-      setTimeout(() => {
-        setConversations((prev) => {
-          const list = prev[targetUserId] || [];
-          return {
-            ...prev,
-            [targetUserId]: list.map((m) =>
-              m.id === newMsg.id ? { ...m, status: "read" } : m
-            ),
-          };
-        });
-      }, 2000);
-
-      // Simulate reciprocal typing response for realistic interaction
-      if (activeUser?.online) {
-        setTimeout(() => {
-          setIsTyping(true);
-        }, 1500);
-
-        setTimeout(() => {
-          setIsTyping(false);
-          const replyTime = new Date().toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          });
-
-          const autoReplyOptions = [
-            "Got it! I will review this and get back to you shortly.",
-            "Thanks for the update! Let's align on this in our next standup.",
-            "Acknowledged. Making the requested adjustments right away.",
-            "Looks great! Proceed with the proposed plan.",
-          ];
-          const randomReply =
-            autoReplyOptions[Math.floor(Math.random() * autoReplyOptions.length)];
-
-          const replyMsg = {
-            id: `msg_rep_${Date.now()}`,
-            senderId: activeUser._id,
-            senderName: `${activeUser.firstname} ${activeUser.lastname}`,
-            senderRole: activeUser.role,
-            text: randomReply,
-            timestamp: replyTime,
-            date: "Today",
-            status: "read",
-            reactions: [],
-          };
-
-          setConversations((prev) => ({
-            ...prev,
-            [targetUserId]: [...(prev[targetUserId] || []), replyMsg],
-          }));
-
-          setUsers((prev) =>
-            prev.map((u) =>
-              u._id === targetUserId
-                ? {
-                    ...u,
-                    lastMessage: randomReply,
-                    lastMessageTime: replyTime,
-                  }
-                : u
-            )
-          );
-        }, 3800);
+      try {
+        if (currentChat?._id) {
+          await sendMsgMutation({
+            chatId: currentChat._id,
+            text: trimmedText,
+            targetUserId,
+          }).unwrap();
+        }
+      } catch (err) {
+        console.error("Failed to send message:", err);
+      } finally {
+        // Clear optimistic message once refetched
+        setLocalOptimisticMessages((prev) =>
+          prev.filter((m) => m.id !== tempId)
+        );
       }
     },
-    [targetUserId, currentAuthUser, activeUser]
-  );
-
-  // Toggle emoji reactions on a message
-  const toggleReaction = useCallback(
-    (messageId, emoji) => {
-      if (!targetUserId) return;
-
-      setConversations((prev) => {
-        const list = prev[targetUserId] || [];
-        const updated = list.map((msg) => {
-          if (msg.id !== messageId) return msg;
-
-          const existingReactions = msg.reactions || [];
-          const matchIndex = existingReactions.findIndex((r) => r.emoji === emoji);
-
-          if (matchIndex > -1) {
-            const currentReaction = existingReactions[matchIndex];
-            const hasReacted = currentReaction.users?.includes("me");
-
-            let newReactions;
-            if (hasReacted) {
-              if (currentReaction.count <= 1) {
-                newReactions = existingReactions.filter((_, idx) => idx !== matchIndex);
-              } else {
-                newReactions = existingReactions.map((r, idx) =>
-                  idx === matchIndex
-                    ? {
-                        ...r,
-                        count: r.count - 1,
-                        users: r.users.filter((u) => u !== "me"),
-                      }
-                    : r
-                );
-              }
-            } else {
-              newReactions = existingReactions.map((r, idx) =>
-                idx === matchIndex
-                  ? {
-                      ...r,
-                      count: r.count + 1,
-                      users: [...(r.users || []), "me"],
-                    }
-                  : r
-              );
-            }
-            return { ...msg, reactions: newReactions };
-          } else {
-            return {
-              ...msg,
-              reactions: [
-                ...existingReactions,
-                { emoji, count: 1, users: ["me"] },
-              ],
-            };
-          }
-        });
-
-        return { ...prev, [targetUserId]: updated };
-      });
-    },
-    [targetUserId]
-  );
-
-  // Delete message
-  const deleteMessage = useCallback(
-    (messageId) => {
-      if (!targetUserId) return;
-      setConversations((prev) => ({
-        ...prev,
-        [targetUserId]: (prev[targetUserId] || []).filter((m) => m.id !== messageId),
-      }));
-    },
-    [targetUserId]
+    [targetUserId, currentChat, currentAuthUser, sendMsgMutation]
   );
 
   return {
     users,
     filteredUsers,
     activeUser,
+    chatId: currentChat?._id,
     activeMessages,
+    isUsersLoading,
+    isUsersError,
+    usersError,
+    refetchUsers,
+    isChatLoading,
+    isChatError,
+    chatError,
+    refetchChat,
+    isSending,
     filterRole,
     setFilterRole,
     searchQuery,
     setSearchQuery,
-    isTyping,
     replyingTo,
     setReplyingTo,
     infoDrawerOpen,
@@ -303,7 +247,5 @@ export const useChat = (targetUserId) => {
     chatSearchQuery,
     setChatSearchQuery,
     sendMessage,
-    toggleReaction,
-    deleteMessage,
   };
 };

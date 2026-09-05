@@ -1,5 +1,5 @@
 import React from "react";
-import { Search, X, MessageSquare, ShieldCheck, UserCheck, Inbox } from "lucide-react";
+import { Search, X, MessageSquare, ShieldCheck, UserCheck, Inbox, RotateCw, AlertCircle } from "lucide-react";
 import ChatUserItem from "./ChatUserItem";
 
 const ChatSidebar = ({
@@ -10,6 +10,9 @@ const ChatSidebar = ({
   onFilterChange,
   searchQuery,
   onSearchChange,
+  isLoading,
+  isError,
+  onRetry,
 }) => {
   const totalUnread = users.reduce((acc, curr) => acc + (curr.unread || 0), 0);
 
@@ -17,7 +20,6 @@ const ChatSidebar = ({
     { id: "all", label: "All", icon: MessageSquare },
     { id: "admin", label: "Admins", icon: ShieldCheck },
     { id: "employee", label: "Employees", icon: UserCheck },
-    { id: "unread", label: "Unread", icon: Inbox, count: totalUnread },
   ];
 
   return (
@@ -48,7 +50,7 @@ const ChatSidebar = ({
           />
           <input
             type="text"
-            placeholder="Search by name, role, dept..."
+            placeholder="Search by name, role, email..."
             value={searchQuery}
             onChange={(e) => onSearchChange?.(e.target.value)}
             className="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] py-2 pl-9 pr-8 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[#6063EE] focus:outline-none transition"
@@ -65,7 +67,7 @@ const ChatSidebar = ({
         </div>
 
         {/* Filter Tabs */}
-        <div className="mt-3 grid grid-cols-4 gap-1 rounded-xl bg-[var(--bg-main)] p-1">
+        <div className="mt-3 grid grid-cols-3 gap-1 rounded-xl bg-[var(--bg-main)] p-1">
           {tabs.map((tab) => {
             const isActive = filterRole === tab.id;
             return (
@@ -80,9 +82,6 @@ const ChatSidebar = ({
                 }`}
               >
                 <span>{tab.label}</span>
-                {tab.id === "unread" && totalUnread > 0 && (
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#6063EE]" />
-                )}
               </button>
             );
           })}
@@ -91,7 +90,38 @@ const ChatSidebar = ({
 
       {/* User Contact List */}
       <div className="min-h-0 flex-1 overflow-y-auto p-2 space-y-1 thin-scrollbar">
-        {users.length > 0 ? (
+        {isLoading ? (
+          <div className="space-y-2 p-2">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div
+                key={i}
+                className="flex items-center gap-3 rounded-xl p-3 animate-pulse bg-[var(--bg-main)]"
+              >
+                <div className="h-10 w-10 rounded-full bg-[var(--border-color)]" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 w-28 rounded bg-[var(--border-color)]" />
+                  <div className="h-2 w-16 rounded bg-[var(--border-color)]" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : isError ? (
+          <div className="flex h-full flex-col items-center justify-center p-6 text-center text-xs text-[var(--text-muted)]">
+            <AlertCircle size={24} className="mb-2 text-red-400" />
+            <p className="font-semibold text-[var(--text-primary)]">Failed to load contacts</p>
+            <p className="mt-1">Please check your connection and try again.</p>
+            {onRetry && (
+              <button
+                type="button"
+                onClick={onRetry}
+                className="mt-3 flex items-center gap-1.5 rounded-lg bg-[#6063EE] px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-[#4F46E5] transition"
+              >
+                <RotateCw size={13} />
+                <span>Retry</span>
+              </button>
+            )}
+          </div>
+        ) : users.length > 0 ? (
           users.map((user) => (
             <ChatUserItem
               key={user._id}

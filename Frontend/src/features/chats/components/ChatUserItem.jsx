@@ -2,7 +2,9 @@ import React from "react";
 import { Shield, User } from "lucide-react";
 
 const ChatUserItem = ({ user, active, onClick }) => {
-  const initials = `${user.firstname?.[0] ?? ""}${user.lastname?.[0] ?? ""}`;
+  const fname = user.fullname?.firstname || user.firstname || "User";
+  const lname = user.fullname?.lastname || user.lastname || "";
+  const initials = `${fname[0] ?? ""}${lname[0] ?? ""}`.toUpperCase();
   const isAdmin = user.role === "admin";
   const hasUnread = (user.unread || 0) > 0;
 
@@ -38,11 +40,11 @@ const ChatUserItem = ({ user, active, onClick }) => {
         {/* Online Status Indicator */}
         <span
           className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-[var(--bg-card)] ${
-            user.online
+            user.online || user.status === "active"
               ? "bg-emerald-500 ring-2 ring-emerald-500/20"
               : "bg-gray-400"
           }`}
-          title={user.online ? "Online" : "Offline"}
+          title={user.online || user.status === "active" ? "Active" : "Offline"}
         />
       </div>
 
@@ -59,12 +61,12 @@ const ChatUserItem = ({ user, active, onClick }) => {
                   : "text-[var(--text-primary)]"
               }`}
             >
-              {user.firstname} {user.lastname}
+              {fname} {lname}
             </h4>
 
             {/* Role Icon */}
             <span
-              className={`shrink-0 inline-flex items-center rounded px-1 py-0.2 text-[9px] font-semibold uppercase ${
+              className={`shrink-0 inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase ${
                 isAdmin
                   ? "bg-indigo-500/15 text-indigo-400"
                   : "bg-emerald-500/15 text-emerald-400"
@@ -82,11 +84,11 @@ const ChatUserItem = ({ user, active, onClick }) => {
                 : "text-[var(--text-muted)]"
             }`}
           >
-            {user.lastMessageTime}
+            {user.lastMessageTime || ""}
           </span>
         </div>
 
-        {/* Message Snippet & Unread Pill */}
+        {/* Message Snippet or email & Unread Pill */}
         <div className="mt-1 flex items-center justify-between gap-2">
           <p
             className={`truncate text-xs leading-relaxed ${
@@ -95,7 +97,7 @@ const ChatUserItem = ({ user, active, onClick }) => {
                 : "text-[var(--text-muted)]"
             }`}
           >
-            {user.lastMessage || "Start a new conversation..."}
+            {user.lastMessage || user.email || "Click to chat..."}
           </p>
 
           {hasUnread && (

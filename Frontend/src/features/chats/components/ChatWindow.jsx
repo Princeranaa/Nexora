@@ -7,7 +7,12 @@ import ChatUserProfileDrawer from "./ChatUserProfileDrawer";
 
 const ChatWindow = ({
   activeUser,
+  chatId,
   messages,
+  isLoading,
+  isError,
+  onRetry,
+  isSending,
   isTyping,
   replyingTo,
   onReply,
@@ -55,6 +60,7 @@ const ChatWindow = ({
         <ChatMessages
           messages={messages}
           activeUser={activeUser}
+          isLoading={isLoading}
           isTyping={isTyping}
           onReply={onReply}
           onReaction={onReaction}

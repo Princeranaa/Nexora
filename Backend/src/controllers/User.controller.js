@@ -179,31 +179,104 @@ export const updateMe = async (req, res) => {
   }
 };
 
+export const getAllUsers = async (req, res) => {
+  try {
+    const currentUserId = req.user._id;
+    const users = await userModel
+      .find({ _id: { $ne: currentUserId }, status: "active" })
+      .select("-password")
+      .sort({ "fullname.firstname": 1 });
+
+    return res.status(200).json({
+      message: "Users fetched successfully",
+      users,
+    });
+  } catch (error) {
+    console.log("getAllUsers error", error);
+    return res.status(500).json({
+      message: "Failed to fetch users",
+    });
+  }
+};
+
 export const getOrCreateChat = async (req, res) => {
   try {
-    // const currentUserId = req.user;
-    const otherUserId = req.params.userId;
+    const currentUserId = req.user._id;
+    const { targetUserId } = req.params;
 
-    let chat = await chatModel.findOne({
-      participants: {
-        $all: [currentUserId, otherUserId],
-      },
-    });
-
-    if (!chat) {
-      chat = await chatModel.create({
-        participants: [currentUserId, otherUserId],
+    if (!targetUserId) {
+      return res.status(400).json({
+        message: "Target user ID is required",
       });
     }
 
-    res.status(200).json({
+    let chat = await chatModel
+      .findOne({
+        participants: {
+          $all: [currentUserId, targetUserId],
+        },
+      })
+      .populate("participants", "-password");
+
+    if (!chat) {
+      chat = await chatModel.create({
+        participants: [currentUserId, targetUserId],
+        messages: [],
+      });
+      chat = await chatModel.findById(chat._id).populate("participants", "-password");
+    }
+
+    return res.status(200).json({
       message: "Chat fetched successfully",
       chat,
     });
   } catch (error) {
-    console.log("error", error);
-    res.status(500).json({
+    console.log("getOrCreateChat error", error);
+    return res.status(500).json({
       message: "Something went wrong",
     });
   }
 };
+
+export const sendMessage = async (req, res) => {
+  try {
+    const currentUserId = req.user._id;
+    const { chatId } = req.params;
+    const { text } = req.body;
+
+    if (!text || !text.trim()) {
+      return res.status(400).json({
+        message: "Message text cannot be empty",
+      });
+    }
+
+    const chat = await chatModel.findById(chatId);
+    if (!chat) {
+      return res.status(404).json({
+        message: "Chat not found",
+      });
+    }
+
+    const newMessage = {
+      senderId: currentUserId,
+      text: text.trim(),
+    };
+
+    chat.messages.push(newMessage);
+    await chat.save();
+
+    const savedMessage = chat.messages[chat.messages.length - 1];
+
+    return res.status(201).json({
+      message: "Message sent successfully",
+      messageData: savedMessage,
+      chat,
+    });
+  } catch (error) {
+    console.log("sendMessage error", error);
+    return res.status(500).json({
+      message: "Failed to send message",
+    });
+  }
+};
+

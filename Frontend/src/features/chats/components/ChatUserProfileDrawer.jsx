@@ -16,7 +16,9 @@ import {
 const ChatUserProfileDrawer = ({ user, onClose, messages = [] }) => {
   if (!user) return null;
 
-  const initials = `${user.firstname?.[0] ?? ""}${user.lastname?.[0] ?? ""}`;
+  const fname = user.fullname?.firstname || user.firstname || "User";
+  const lname = user.fullname?.lastname || user.lastname || "";
+  const initials = `${fname[0] ?? ""}${lname[0] ?? ""}`.toUpperCase();
   const isAdmin = user.role === "admin";
 
   // Collect all shared attachments in this conversation
@@ -32,7 +34,7 @@ const ChatUserProfileDrawer = ({ user, onClose, messages = [] }) => {
         <button
           type="button"
           onClick={onClose}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] transition"
+          className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] transition cursor-pointer"
           title="Close details"
         >
           <X size={18} />
@@ -49,13 +51,15 @@ const ChatUserProfileDrawer = ({ user, onClose, messages = [] }) => {
             </div>
             <span
               className={`absolute bottom-1 right-1 h-4 w-4 rounded-full border-2 border-[var(--bg-surface)] ${
-                user.online ? "bg-emerald-500 ring-2 ring-emerald-500/20" : "bg-gray-400"
+                user.online || user.status === "active"
+                  ? "bg-emerald-500 ring-2 ring-emerald-500/20"
+                  : "bg-gray-400"
               }`}
             />
           </div>
 
           <h4 className="text-base font-bold text-[var(--text-primary)]">
-            {user.firstname} {user.lastname}
+            {fname} {lname}
           </h4>
 
           <div className="mt-1 flex items-center gap-1.5">
@@ -72,7 +76,9 @@ const ChatUserProfileDrawer = ({ user, onClose, messages = [] }) => {
           </div>
 
           <p className="mt-2 text-xs text-[var(--text-muted)]">
-            {user.online ? "Active Now" : `Last seen: ${user.lastSeen || "Offline"}`}
+            {user.online || user.status === "active"
+              ? "Active Now"
+              : `Last seen: ${user.lastSeen || "Offline"}`}
           </p>
         </div>
 
@@ -87,7 +93,7 @@ const ChatUserProfileDrawer = ({ user, onClose, messages = [] }) => {
                 Department
               </span>
               <p className="font-medium text-[var(--text-primary)] truncate">
-                {user.department || "Engineering"}
+                {user.department || "Enterprise Workspace"}
               </p>
             </div>
           </div>
@@ -101,7 +107,7 @@ const ChatUserProfileDrawer = ({ user, onClose, messages = [] }) => {
                 Email
               </span>
               <p className="font-medium text-[var(--text-primary)] truncate">
-                {user.email || `${user.firstname?.toLowerCase()}@enterprise.com`}
+                {user.email || `${fname.toLowerCase()}@enterprise.com`}
               </p>
             </div>
           </div>
@@ -171,7 +177,7 @@ const ChatUserProfileDrawer = ({ user, onClose, messages = [] }) => {
                   <button
                     type="button"
                     onClick={() => alert(`Opening: ${file.name}`)}
-                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[var(--text-muted)] hover:text-[#6063EE] hover:bg-[var(--bg-main)] transition"
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[var(--text-muted)] hover:text-[#6063EE] hover:bg-[var(--bg-main)] transition cursor-pointer"
                   >
                     <ExternalLink size={13} />
                   </button>
@@ -189,14 +195,14 @@ const ChatUserProfileDrawer = ({ user, onClose, messages = [] }) => {
         <div className="space-y-1 pt-2">
           <button
             type="button"
-            className="flex w-full items-center gap-2.5 rounded-lg p-2.5 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] transition text-left"
+            className="flex w-full items-center gap-2.5 rounded-lg p-2.5 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] transition text-left cursor-pointer"
           >
             <Star size={15} className="text-amber-400" />
             <span>Star Conversation</span>
           </button>
           <button
             type="button"
-            className="flex w-full items-center gap-2.5 rounded-lg p-2.5 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] transition text-left"
+            className="flex w-full items-center gap-2.5 rounded-lg p-2.5 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] transition text-left cursor-pointer"
           >
             <BellOff size={15} className="text-[var(--text-muted)]" />
             <span>Mute Notifications</span>

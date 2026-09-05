@@ -1,14 +1,5 @@
 import React, { useRef, useState } from "react";
-import {
-  Paperclip,
-  Smile,
-  Send,
-  X,
-  FileText,
-  Image,
-  Reply,
-  Sparkles,
-} from "lucide-react";
+import { Paperclip, Smile, Send, X, FileText, Image, Reply, Sparkles} from "lucide-react";
 
 const EMOJI_LIST = ["😀", "😂", "👍", "❤️", "🚀", "🎉", "🔥", "🙌", "✨", "💯", "🙏", "👀", "💼", "✅"];
 
@@ -181,13 +172,13 @@ const ChatInput = ({ onSendMessage, replyingTo, onCancelReply }) => {
 
               {/* Emoji Menu Popover */}
               {showEmojiPicker && (
-                <div className="absolute bottom-8 right-0 mb-2 grid grid-cols-7 gap-1 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-surface)] p-2 shadow-xl z-30">
+                <div className="absolute bottom-8 right-0 mb-2 grid grid-cols-7 gap-1 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-surface)] p-2 shadow-xl z-30 max-w-[280px]">
                   {EMOJI_LIST.map((emoji) => (
                     <button
                       key={emoji}
                       type="button"
                       onClick={() => handleAddEmoji(emoji)}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg text-base hover:bg-[var(--bg-hover)] hover:scale-110 transition"
+                      className="flex h-8 w-8 items-center justify-center rounded-lg text-base hover:bg-[var(--bg-hover)] hover:scale-110 transition cursor-pointer"
                     >
                       {emoji}
                     </button>
