@@ -1,7 +1,31 @@
 import React, { useRef, useState } from "react";
-import { Paperclip, Smile, Send, X, FileText, Image, Reply, Sparkles} from "lucide-react";
+import {
+  Paperclip,
+  Smile,
+  Send,
+  X,
+  FileText,
+  Image,
+  Reply,
+  Sparkles,
+} from "lucide-react";
 
-const EMOJI_LIST = ["😀", "😂", "👍", "❤️", "🚀", "🎉", "🔥", "🙌", "✨", "💯", "🙏", "👀", "💼", "✅"];
+const EMOJI_LIST = [
+  "😀",
+  "😂",
+  "👍",
+  "❤️",
+  "🚀",
+  "🎉",
+  "🔥",
+  "🙌",
+  "✨",
+  "💯",
+  "🙏",
+  "👀",
+  "💼",
+  "✅",
+];
 
 const ChatInput = ({ onSendMessage, replyingTo, onCancelReply }) => {
   const [text, setText] = useState("");
@@ -202,17 +226,6 @@ const ChatInput = ({ onSendMessage, replyingTo, onCancelReply }) => {
           >
             <Send size={16} />
           </button>
-        </div>
-
-        {/* Input Footer Note */}
-        <div className="flex items-center justify-between px-2 text-[10px] text-[var(--text-muted)]">
-          <span className="hidden sm:inline">
-            Press <strong className="text-[var(--text-secondary)] font-semibold">Enter</strong> to send · <strong className="text-[var(--text-secondary)] font-semibold">Shift + Enter</strong> for a new line
-          </span>
-          <span className="inline-flex items-center gap-1">
-            <Sparkles size={11} className="text-[#6063EE]" />
-            Real-time Team Sync
-          </span>
         </div>
       </div>
     </div>

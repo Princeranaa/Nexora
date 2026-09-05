@@ -199,7 +199,7 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
-export const getOrCreateChat = async (req, res) => {
+export const getChat = async (req, res) => {
   try {
     const currentUserId = req.user._id;
     const { targetUserId } = req.params;
@@ -210,7 +210,7 @@ export const getOrCreateChat = async (req, res) => {
       });
     }
 
-    let chat = await chatModel
+    const chat = await chatModel
       .findOne({
         participants: {
           $all: [currentUserId, targetUserId],
@@ -223,7 +223,9 @@ export const getOrCreateChat = async (req, res) => {
         participants: [currentUserId, targetUserId],
         messages: [],
       });
-      chat = await chatModel.findById(chat._id).populate("participants", "-password");
+      chat = await chatModel
+        .findById(chat._id)
+        .populate("participants", "-password");
     }
 
     return res.status(200).json({
@@ -279,4 +281,3 @@ export const sendMessage = async (req, res) => {
     });
   }
 };
-

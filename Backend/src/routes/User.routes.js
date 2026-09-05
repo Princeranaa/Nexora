@@ -7,8 +7,8 @@ import {
   logout,
   updateMe,
   getAllUsers,
-  getOrCreateChat,
   sendMessage,
+  getChat,
 } from "../controllers/User.controller.js";
 import { authMiddleware } from "../Middlewares/Auth.middleware.js";
 
@@ -21,7 +21,7 @@ router.patch("/update-profile", authMiddleware, updateMe);
 router.get("/logout", logout);
 
 router.get("/users", authMiddleware, getAllUsers);
-router.get("/chat/:targetUserId", authMiddleware, getOrCreateChat);
+router.get("/chat/:targetUserId", authMiddleware, getChat);
 router.post("/chat/:chatId/message", authMiddleware, sendMessage);
 
 export default router;
