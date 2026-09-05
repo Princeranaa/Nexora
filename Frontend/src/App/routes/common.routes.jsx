@@ -8,7 +8,11 @@ export let commonRoutes = [
     element: <Home />,
   },
   {
-    path: "chats",
+    path: "/home/chats",
+    element: <Chats />,
+  },
+  {
+    path: "/home/chats/:targetUserId",
     element: <Chats />,
   },
   {
