@@ -9,7 +9,6 @@ import {
   Clock,
   RefreshCw,
 } from "lucide-react";
-
 import { useGetRecentActivitiesQuery } from "../service/api.service";
 
 // Time formatting helper
@@ -76,8 +75,8 @@ const getActionMeta = (action) => {
     default:
       return {
         icon: ActivityIcon,
-        iconClass: "text-base-content/60",
-        bg: "bg-base-300",
+        iconClass: "text-[var(--text-muted)]",
+        bg: "bg-[var(--bg-hover)]",
       };
   }
 };
@@ -96,21 +95,21 @@ export const RecentActivity = () => {
   const activities = data?.data || [];
 
   return (
-    <div className="card bg-base-100 shadow-xl border border-base-300/50">
-      <div className="card-body p-5">
+    <div className="rounded-[var(--radius-md)] bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-[var(--shadow-md)] overflow-y-auto">
+      <div className="p-5">
         {/* Header */}
-        <div className="flex items-center justify-between gap-2 border-b border-base-200 pb-4">
+        <div className="flex items-center justify-between gap-2 border-b border-[var(--border-color)] pb-4">
           <div className="flex items-center gap-2">
-            <div className="p-2 bg-primary/10 rounded-lg text-primary">
+            <div className="p-2 rounded-lg bg-primary/10 text-primary">
               <ActivityIcon className="w-5 h-5" />
             </div>
 
             <div>
-              <h2 className="card-title text-base md:text-lg font-semibold">
+              <h2 className="text-base md:text-lg font-semibold text-[var(--text-primary)]">
                 Recent Activity
               </h2>
 
-              <p className="text-xs text-base-content/60">
+              <p className="text-xs text-[var(--text-muted)]">
                 Latest activity across your CMS
               </p>
             </div>
@@ -121,7 +120,7 @@ export const RecentActivity = () => {
             <select
               value={selectedModule}
               onChange={(e) => setSelectedModule(e.target.value)}
-              className="select select-bordered select-xs md:select-sm font-normal"
+              className="select select-bordered select-xs md:select-sm font-normal bg-[var(--bg-surface)] text-[var(--text-primary)] border-[var(--border-color)]"
             >
               <option value="">All Modules</option>
               <option value="TASK">Tasks</option>
@@ -134,7 +133,7 @@ export const RecentActivity = () => {
               onClick={() => refetch()}
               disabled={isFetching}
               title="Refresh"
-              className="btn btn-ghost btn-sm btn-square"
+              className=" btn btn-ghost btn-sm btn-square text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]"
             >
               <RefreshCw
                 className={`w-4 h-4 ${
@@ -150,11 +149,11 @@ export const RecentActivity = () => {
           <div className="space-y-4 py-4">
             {[1, 2, 3, 4].map((n) => (
               <div key={n} className="flex items-center gap-3 animate-pulse">
-                <div className="w-10 h-10 rounded-full bg-base-300" />
+                <div className="w-10 h-10 rounded-full bg-[var(--bg-hover)]" />
 
                 <div className="flex-1 space-y-2">
-                  <div className="h-3 bg-base-300 rounded w-3/4" />
-                  <div className="h-2 bg-base-200 rounded w-1/4" />
+                  <div className="h-3 bg-[var(--bg-hover)] rounded w-3/4" />
+                  <div className="h-2 bg-[var(--bg-hover)] rounded w-1/4" />
                 </div>
               </div>
             ))}
@@ -173,14 +172,14 @@ export const RecentActivity = () => {
           </div>
         ) : activities.length === 0 ? (
           /* Empty */
-          <div className="text-center py-8 text-base-content/60">
+          <div className="text-center py-8 text-[var(--text-muted)]">
             <ActivityIcon className="w-8 h-8 mx-auto mb-2 opacity-40" />
 
             <p className="text-sm">No recent activity recorded yet.</p>
           </div>
         ) : (
           /* Activities */
-          <ul className="divide-y divide-base-200">
+          <ul className="divide-y divide-[var(--border-color)]">
             {activities.map((item) => {
               const { icon: Icon, iconClass, bg } = getActionMeta(item.action);
 
@@ -191,40 +190,23 @@ export const RecentActivity = () => {
               return (
                 <li
                   key={item._id}
-                  className="
-                    py-3
-                    px-2
-                    flex
-                    items-start
-                    gap-3
-                    rounded-lg
-                    hover:bg-base-200/50
-                    transition-colors
-                  "
+                  className="py-3 px-2 flex items-start gap-3 rounded-lg hover:bg-[var(--bg-hover)] transition-colors"
                 >
                   {/* Activity Icon */}
-                  <div
-                    className={`
-                      p-2.5
-                      rounded-xl
-                      ${bg}
-                      shrink-0
-                      mt-0.5
-                    `}
-                  >
+                  <div className={`p-2.5 rounded-xl ${bg} shrink-0 mt-0.5`}>
                     <Icon className={`w-4 h-4 ${iconClass}`} />
                   </div>
 
                   {/* Activity Details */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-base-content leading-snug">
+                    <p className="text-sm font-medium text-[var(--text-primary)] leading-snug">
                       <span className="font-semibold text-primary">
                         {authorName}
                       </span>{" "}
                       {item.description?.replace(authorName, "").trim()}
                     </p>
 
-                    <div className="flex items-center gap-2 mt-1 text-xs text-base-content/60">
+                    <div className="flex items-center gap-2 mt-1 text-xs text-[var(--text-muted)]">
                       {/* Module */}
                       <span className="badge badge-sm badge-ghost uppercase tracking-wider text-[10px]">
                         {item.module}
@@ -246,31 +228,18 @@ export const RecentActivity = () => {
 
         {/* Footer */}
         {activities.length > 0 && (
-          <div className="card-actions justify-center pt-2 border-t border-base-200">
+          <div className=" flex justify-center pt-2 border-t border-[var(--border-color)]">
             {limit <= 6 ? (
               <button
                 onClick={() => setLimit(15)}
-                className="
-                  btn
-                  btn-ghost
-                  btn-sm
-                  text-xs
-                  font-semibold
-                  text-primary
-                "
+                className="btn btn-ghost btn-sm text-xs font-semibold text-primary hover:bg-[var(--bg-hover)]"
               >
                 View More Activities
               </button>
             ) : (
               <button
                 onClick={() => setLimit(6)}
-                className="
-                  btn
-                  btn-ghost
-                  btn-sm
-                  text-xs
-                  text-base-content/60
-                "
+                className="btn btn-ghost btn-sm text-xs text-[var(--text-muted)] hover:bg-[var(--bg-hover)]"
               >
                 Show Less
               </button>

@@ -75,8 +75,12 @@ const activitySchema = new mongoose.Schema(
 );
 
 // Compound Index: Optimizes chronological feed & filtered feed queries
-activitySchema.index({ createdAt: -1 });
+
 activitySchema.index({ module: 1, createdAt: -1 });
 activitySchema.index({ performedBy: 1, createdAt: -1 });
+activitySchema.index(
+  { createdAt: 1 },
+  { expireAfterSeconds: 172800 }
+);
 
 export const activityModel = mongoose.model("Activity", activitySchema);

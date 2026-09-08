@@ -1,7 +1,7 @@
 import { Users, UserCheck, UserX } from "lucide-react";
 
 import StatCard from "../components/StatCard";
-import {RecentActivity} from "../components/RecentActivity";
+import { RecentActivity } from "../components/RecentActivity";
 import { useEmployee } from "../../adminModule/employees/hooks/employeeHook";
 
 const Home = () => {
@@ -27,7 +27,7 @@ const Home = () => {
   ];
 
   return (
-    <div className="w-full">
+    <div className="w-full grid grid-cols-1 gap-5">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
